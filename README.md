@@ -1,6 +1,6 @@
 # Making a Bot for Generals.io using Search Algorithms and Offline Learning
 
-**DAC-203 – Artificial Intelligence, IIT Roorkee** · Swarit Thakkar (25323045)
+**DAC-203 – Artificial Intelligence, IIT Roorkee**
 
 A game-playing agent for a two-player, simultaneous-move, fully observable version of
 [Generals.io](https://generals.io) on a 23×23 board. The final bot, **v51** (`final.py`), is built
@@ -236,7 +236,7 @@ processes, then a 14-64-64-10 MLP is trained with Adam for 60 epochs on MPS. Exp
 
 ## 9. Credits and references
 
-Swarit Thakkar (25323045), DAC-203, IIT Roorkee.
+DAC-203 course project, IIT Roorkee.
 
 - G. Synnaeve and P. Bessière. A Bayesian model for plan recognition in RTS games applied to StarCraft. AIIDE 2011.
 - B. G. Weber and M. Mateas. A data mining approach to strategy prediction. IEEE CIG 2009.
