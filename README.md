@@ -222,6 +222,26 @@ processes, then a 14-64-64-10 MLP is trained with Adam for 60 epochs on MPS. Exp
 | Opponent classifier, filtered belief on unseen maps | 39% / 66% / 70% at ticks 100 / 200 / 300 (chance 10%) |
 | Decision time | about 10 ms per move on average |
 
+### Against human players (v51, the final bot)
+
+Games played by classmates against v51 in the arena (`play_arena.py`), recorded automatically in
+[`arena_results/games.jsonl`](arena_results/games.jsonl) with replays in `arena_results/replays/`.
+Board 23×23, one tick every 350–500 ms, humans played both seats.
+
+| | Games | v51 won | Humans won |
+|---|---|---|---|
+| Completed games | 14 | **11** (10 by capturing the general, 1 on land at the tick limit) | 3 (all by capture) |
+| Player A | 10 | 7 | 3 |
+| Player B | 2 | 2 | 0 |
+| Player C | 2 | 2 | 0 |
+
+- **v51 won 11 of 14 completed games (79%)** against four human players; it captured the human
+  general between ticks 268 and 655.
+- All three human wins came from one player (Player A, 3 of their 10 games), at ticks 382–638.
+- Two further games ended when the human quit (at ticks 8 and 355); they are not counted above.
+- Count them yourself:
+  `python -c "import json; g=[json.loads(l) for l in open('arena_results/games.jsonl')]; v=[d for d in g if d['bot_id'].endswith('v51_fast_defence') and d['end']!='quit']; print(len(v), sum(d['winner']=='bot' for d in v))"`
+
 ## 8. Limitations
 
 - **Late attacker:** it attacks only proven attacks, which in practice means an emptied enemy general.
