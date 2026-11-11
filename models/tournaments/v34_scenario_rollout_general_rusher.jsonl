@@ -1,0 +1,4 @@
+{"seed": 92020, "challenger_seat": 0, "winner": 1, "won": false, "ticks": 166, "seconds": 47.37, "errors": []}
+{"seed": 92020, "challenger_seat": 1, "winner": -1, "won": false, "ticks": 162, "seconds": 15.07, "errors": []}
+{"seed": 92021, "challenger_seat": 0, "winner": 0, "won": true, "ticks": 220, "seconds": 64.97, "errors": []}
+{"seed": 92021, "challenger_seat": 1, "winner": 0, "won": false, "ticks": 220, "seconds": 39.41, "errors": []}

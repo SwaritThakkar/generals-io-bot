@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fogless Generals — local</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#e9ecec; --surface:#f7f9f8; --surface-2:#dfe4e4; --sunken:#d3dad9;
+  --line:#c5cecd; --line-soft:#d9e0df;
+  --ink:#131a1c; --ink-2:#4a585c; --ink-3:#7b8a8e;
+  --brass:#9a6b12; --brass-ink:#7d5709; --brass-soft:rgba(154,107,18,.14);
+  --p0:#bf3b34; --p1:#2c5f96; --p2:#4c8b52; --p3:#7a5aa8;
+  --neutral-land:#b6c0bf; --neutral-castle:#8e9c9c; --mountain:#77868a;
+  --grid:rgba(19,26,28,.16); --tile-ink:#ffffff; --plain-ink:#2a3538;
+  --bad:#b23c33;
+  --shadow:0 1px 2px rgba(19,26,28,.08), 0 8px 24px rgba(19,26,28,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0b1012; --surface:#121a1d; --surface-2:#1a2429; --sunken:#0e1518;
+    --line:#243036; --line-soft:#1b262b;
+    --ink:#e2e9ea; --ink-2:#9db0b4; --ink-3:#6b7d82;
+    --brass:#d7a244; --brass-ink:#e8b95f; --brass-soft:rgba(215,162,68,.16);
+    --p0:#d1544a; --p1:#4a86c6; --p2:#63a96a; --p3:#9a7ac8;
+    --neutral-land:#2b3a3f; --neutral-castle:#485b61; --mountain:#162024;
+    --grid:rgba(226,233,234,.10); --tile-ink:#ffffff; --plain-ink:#b9c8cb;
+    --bad:#e0685c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b1012; --surface:#121a1d; --surface-2:#1a2429; --sunken:#0e1518;
+  --line:#243036; --line-soft:#1b262b;
+  --ink:#e2e9ea; --ink-2:#9db0b4; --ink-3:#6b7d82;
+  --brass:#d7a244; --brass-ink:#e8b95f; --brass-soft:rgba(215,162,68,.16);
+  --p0:#d1544a; --p1:#4a86c6; --p2:#63a96a; --p3:#9a7ac8;
+  --neutral-land:#2b3a3f; --neutral-castle:#485b61; --mountain:#162024;
+  --grid:rgba(226,233,234,.10); --tile-ink:#ffffff; --plain-ink:#b9c8cb;
+  --bad:#e0685c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 20px 40px;display:flex;flex-direction:column;gap:18px}
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);padding-bottom:13px}
+.eyebrow{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:12px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--brass-ink)}
+h1{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:32px;margin:0;line-height:1.05}
+h2{font-family:"Barlow Condensed",sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 9px;font-weight:600}
+.clock{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink-2)}
+.clock b{color:var(--ink)}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 262px;gap:18px;align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);padding:14px}
+.board-hold{background:var(--sunken);border:1px solid var(--line-soft);border-radius:3px;padding:8px;
+  display:flex;justify-content:center;overflow:auto}
+canvas{display:block;touch-action:manipulation}
+.stack{display:flex;flex-direction:column;gap:13px}
+.srow{display:grid;grid-template-columns:11px 1fr auto auto;align-items:center;gap:9px}
+.swatch{width:11px;height:11px;border-radius:2px}
+.sname{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:15px;letter-spacing:.03em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sname.dead{color:var(--ink-3);text-decoration:line-through}
+.snum{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:13px;min-width:44px;text-align:right}
+.snum small{display:block;font-family:"Barlow Condensed",sans-serif;font-size:9px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-3)}
+.verdict{border-left:3px solid var(--brass)}
+.verdict .who{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:700}
+.err{border-left:3px solid var(--bad);padding:8px 11px;background:var(--surface-2);border-radius:3px;font-size:12.5px}
+.tiny{font-size:11.5px;color:var(--ink-3);line-height:1.55}
+kbd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:2px;padding:1px 4px;color:var(--ink-2)}
+label{display:flex;flex-direction:column;gap:4px;font-family:"Barlow Condensed",sans-serif;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+input,select,button{font-family:"IBM Plex Sans",sans-serif;font-size:13px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:3px;height:32px;padding:0 8px}
+button{cursor:pointer;font-weight:500}
+button:hover:not(:disabled){border-color:var(--brass);color:var(--brass-ink)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--brass-soft);border-color:var(--brass);color:var(--brass-ink);font-weight:600}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:9px}
+.row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.drop{border:1.5px dashed var(--line);border-radius:3px;padding:14px 12px;text-align:center;
+  color:var(--ink-3);font-size:12px;cursor:pointer;transition:border-color .12s ease,color .12s ease}
+.drop:hover,.drop.over{border-color:var(--brass);color:var(--brass-ink);background:var(--brass-soft)}
+.ok{border-left:3px solid var(--brass);padding:8px 11px;background:var(--brass-soft);
+  border-radius:3px;font-size:12.5px}
+pre.trace{white-space:pre-wrap;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  margin:6px 0 0;max-height:190px;overflow:auto;color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Local · JAX engine · no fog</div>
+      <h1 id="title">Fogless Generals</h1>
+    </div>
+    <div class="clock">tick <b id="tick">0</b> · <span id="conn">connecting…</span></div>
+  </header>
+
+  <div class="stage">
+    <section class="panel stack">
+      <div class="board-hold"><canvas id="board"></canvas></div>
+      <div class="tiny" id="status">Waiting for the first tick…</div>
+    </section>
+
+    <aside class="stack">
+      <div class="panel verdict" id="verdict" hidden>
+        <div class="who" id="v-who"></div>
+        <div class="tiny" id="v-how"></div>
+      </div>
+      <div class="panel">
+        <h2>Scoreboard</h2>
+        <div class="stack" style="gap:7px" id="score"></div>
+        <div id="notes"></div>
+      </div>
+      <div class="panel" id="controls" hidden>
+        <h2>Controls</h2>
+        <p class="tiny">
+          Click one of your tiles, then <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>
+          to queue a path. <kbd>shift</kbd> + direction sends half instead of all-but-one.
+          <kbd>Q</kbd> clears the queue.
+        </p>
+      </div>
+      <div class="panel" id="setup">
+        <h2>Players</h2>
+        <div class="stack" style="gap:9px">
+          <label>Red (seat 0)
+            <select id="sel0"></select>
+          </label>
+          <label>Blue (seat 1)
+            <select id="sel1"></select>
+          </label>
+          <div class="drop" id="drop">
+            <b>Load a .py agent</b><br>click, or drag a file here
+            <input type="file" id="file" accept=".py,text/x-python" hidden>
+          </div>
+          <div id="loadmsg"></div>
+          <div class="fields">
+            <label>Board<input type="number" id="size" min="5" max="32" value="23"></label>
+            <label>Tick ms<input type="number" id="tick" min="0" max="5000" step="50" value="500"></label>
+            <label>Spawn<input type="number" id="spawn" min="2" max="40" value="17"></label>
+          </div>
+          <button class="primary" id="start">Start new game</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Legend</h2>
+        <p class="tiny">
+          Amber arrows are your pending queue. Coloured arrows are what each side
+          committed last tick — both resolve simultaneously. A white dot at an
+          arrow's tail means "send half".
+        </p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script type="module">
+import { createBoard } from "/board.mjs";
+
+const PVAR = ["--p0", "--p1", "--p2", "--p3"];
+const canvas = document.getElementById("board");
+let me = -1;
+let seq = 0;
+let pending = [];
+let flushing = false;
+
+async function post(body) {
+  try {
+    await fetch("/api/move", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ player: me, ...body }),
+    });
+  } catch { /* the next snapshot re-syncs us */ }
+}
+
+async function flush() {
+  if (flushing || me < 0) return;
+  const batch = pending.splice(0, pending.length);
+  if (!batch.length) return;
+  flushing = true;
+  await post({ moves: batch });
+  flushing = false;
+  if (pending.length) flush();
+}
+
+const board = createBoard(canvas, {
+  onAppend: (m) => { pending.push(m); flush(); },
+  onClear: () => { pending = []; post({ clear: true }); },
+});
+
+const el = (id) => document.getElementById(id);
+
+function render(view) {
+  const s = view.snapshot;
+  if (view.agents && view.agents.length !== agents.length) {
+    agents = view.agents;
+    fillSelects();
+  } else if (!agents.length && view.agents) {
+    agents = view.agents;
+    fillSelects();
+  }
+  if (view.seats && view.seats.join() !== seats.join()) {
+    seats = view.seats;
+    el("sel0").value = seats[0];
+    el("sel1").value = seats[1];
+  }
+  if (view.config) {
+    el("size").value = view.config.size;
+    el("tick").value = view.tickMs;
+    el("spawn").value = view.config.minSpawn;
+  }
+  el("drop").style.display = view.allowUpload === false ? "none" : "";
+
+  if (me < 0 && view.humanSeats.length) {
+    me = view.humanSeats[0];
+    board.setPlayer(me);
+    el("controls").hidden = false;
+  } else if (me < 0) {
+    board.setInteractive?.(false);
+    el("controls").hidden = true;
+  }
+  board.update(s);
+  el("tick").textContent = s.tick;
+  el("title").textContent = view.names.join("  vs  ");
+
+  el("score").innerHTML = view.names.map((n, p) => `
+    <div class="srow">
+      <span class="swatch" style="background:var(${PVAR[p]})"></span>
+      <span class="sname${s.alive[p] ? "" : " dead"}">${n}${p === me ? " (you)" : ""}</span>
+      <span class="snum">${s.land[p]}<small>land</small></span>
+      <span class="snum">${s.armyTotal[p]}<small>army</small></span>
+    </div>`).join("");
+
+  el("notes").innerHTML = view.notes
+    .map((note, p) => (note ? `<div class="err" style="margin-top:9px">${view.names[p]}: ${note}</div>` : ""))
+    .join("");
+
+  if (s.done) {
+    el("verdict").hidden = false;
+    el("v-who").textContent = s.winner < 0 ? "Draw" : `${view.names[s.winner]} wins`;
+    el("v-who").style.color = s.winner < 0 ? "" : `var(${PVAR[s.winner]})`;
+    el("v-how").textContent = s.winner >= 0 && s.land[1 - s.winner] === 0
+      ? `General captured on tick ${s.tick}`
+      : "Decided on land at the tick limit";
+    el("status").textContent = "Game over.";
+  } else {
+    el("status").textContent = me >= 0
+      ? `Your move — ${view.queueLengths[me]} queued.`
+      : "Watching two agents play.";
+  }
+}
+
+// ---- setup panel --------------------------------------------------------
+let agents = [];
+let seats = [];
+const msg = (html) => { el("loadmsg").innerHTML = html; };
+
+function fillSelects() {
+  for (const [i, id] of [["sel0", 0], ["sel1", 1]]) {
+    const sel = el(i);
+    const keep = sel.value || seats[id];
+    sel.innerHTML = agents
+      .map((a) => `<option value="${a.id}">${a.label}</option>`)
+      .join("");
+    if (agents.some((a) => a.id === keep)) sel.value = keep;
+  }
+}
+
+async function upload(file) {
+  const source = await file.text();
+  msg(`<div class="tiny">importing ${file.name}\u2026</div>`);
+  const res = await fetch("/api/agent", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ filename: file.name, source }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    msg(`<div class="err">${escapeHtml(data.error || "could not load that file")
+      .split("\n").slice(0, 1).join("")}<pre class="trace">${
+      escapeHtml(data.error || "").split("\n").slice(1).join("\n")}</pre></div>`);
+    return;
+  }
+  agents = data.agents;
+  fillSelects();
+  el("sel1").value = data.agent.id;
+  const warn = data.agent.error
+    ? `<div class="err" style="margin-top:6px">${escapeHtml(data.agent.error)}</div>` : "";
+  msg(`<div class="ok">Loaded <b>${escapeHtml(data.agent.label)}</b> \u2014 seated as Blue.
+       Press <b>Start new game</b>.</div>${warn}`);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+const drop = el("drop");
+const fileInput = el("file");
+drop.onclick = () => fileInput.click();
+fileInput.onchange = () => fileInput.files[0] && upload(fileInput.files[0]);
+["dragenter", "dragover"].forEach((e) =>
+  drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((e) =>
+  drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (ev) => {
+  const f = ev.dataTransfer?.files?.[0];
+  if (f) upload(f);
+});
+
+el("start").onclick = async () => {
+  const res = await fetch("/api/new", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      p0: el("sel0").value,
+      p1: el("sel1").value,
+      size: Number(el("size").value),
+      tick: Number(el("tick").value),
+      minSpawn: Number(el("spawn").value),
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) { msg(`<div class="err">${escapeHtml(data.error)}</div>`); return; }
+  me = -1;                      // reseat: the human may have moved seats
+  board.setPlayer(-1);
+  el("verdict").hidden = true;
+  msg("");
+  render(data);
+};
+
+function connect() {
+  const src = new EventSource("/api/stream");
+  src.addEventListener("open", () => { el("conn").textContent = "live"; });
+  src.addEventListener("state", (ev) => render(JSON.parse(ev.data)));
+  src.onerror = () => {
+    el("conn").textContent = "reconnecting…";
+    src.close();
+    setTimeout(connect, 900);
+  };
+}
+
+fetch("/api/state").then((r) => r.json()).then(render).catch(() => {});
+connect();
+</script>
+</body>
+</html>

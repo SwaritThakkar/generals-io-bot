@@ -1,0 +1,288 @@
+{"seed":93000,"tick":50,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0002806669999699807,"target":[3,8],"target_kind":"enemy tile","ticks":18,"expanded":37,"generated":59,"army_at_goal":null}
+{"seed":93000,"tick":50,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00033608299963816535,"target":[3,8],"target_kind":"enemy tile","ticks":18,"expanded":49,"generated":68,"army_at_goal":7}
+{"seed":93000,"tick":50,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0002022499993472593,"target":[3,8],"target_kind":"enemy tile","ticks":18,"expanded":23,"generated":44,"army_at_goal":7}
+{"seed":93000,"tick":50,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0008522499992977828,"target":[3,8],"target_kind":"enemy tile","ticks":18,"expanded":374,"generated":378,"army_at_goal":7}
+{"seed":93000,"tick":50,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00012837499889428727,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":50,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00014470899986918084,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":50,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00014800000099057797,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":50,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.0001396669995301636,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":75,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00024408299941569567,"target":[0,6],"target_kind":"enemy general","ticks":23,"expanded":59,"generated":85,"army_at_goal":null}
+{"seed":93000,"tick":75,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00027695899916579947,"target":[4,8],"target_kind":"enemy tile","ticks":17,"expanded":47,"generated":64,"army_at_goal":21}
+{"seed":93000,"tick":75,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0002206249992013909,"target":[4,8],"target_kind":"enemy tile","ticks":17,"expanded":19,"generated":36,"army_at_goal":21}
+{"seed":93000,"tick":75,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.000954334000198287,"target":[4,8],"target_kind":"enemy tile","ticks":17,"expanded":398,"generated":411,"army_at_goal":21}
+{"seed":93000,"tick":75,"wait_side":0,"side":1,"variant":"base_a1","seconds":6.879200009279884e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":75,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00016208300075959414,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":75,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00016133400094986428,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":75,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00016220899851759896,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":100,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00022449999960372224,"target":[0,6],"target_kind":"enemy general","ticks":23,"expanded":59,"generated":85,"army_at_goal":null}
+{"seed":93000,"tick":100,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00026895900009549223,"target":[4,8],"target_kind":"enemy tile","ticks":17,"expanded":47,"generated":64,"army_at_goal":34}
+{"seed":93000,"tick":100,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00021862500034330878,"target":[4,8],"target_kind":"enemy tile","ticks":17,"expanded":19,"generated":36,"army_at_goal":34}
+{"seed":93000,"tick":100,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0011733749997802079,"target":[14,17],"target_kind":"neutral city","ticks":4,"expanded":407,"generated":422,"army_at_goal":4}
+{"seed":93000,"tick":100,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00016258300092886202,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":100,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00016420899919467047,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":100,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00016429199968115427,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93000,"tick":100,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00015987500046321657,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.00011204200018255506,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00012524999874585774,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00012358400090306532,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00012287500067031942,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":1,"variant":"base_a1","seconds":3.258400101913139e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.0006511250012408709,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.0007524590000684839,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":50,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006602499997825362,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":75,"wait_side":1,"side":0,"variant":"base_a1","seconds":7.937500049592927e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":75,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00011395900037314277,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":75,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.0001083329989342019,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":75,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00011774999984481838,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":75,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.0003753749988391064,"target":[4,20],"target_kind":"enemy general","ticks":30,"expanded":123,"generated":159,"army_at_goal":null}
+{"seed":93001,"tick":75,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00047287500092352275,"target":[10,21],"target_kind":"enemy tile","ticks":27,"expanded":162,"generated":200,"army_at_goal":10}
+{"seed":93001,"tick":75,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00024699999994481914,"target":[9,21],"target_kind":"enemy tile","ticks":30,"expanded":39,"generated":63,"army_at_goal":7}
+{"seed":93001,"tick":75,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.000866540998686105,"target":[10,21],"target_kind":"enemy tile","ticks":27,"expanded":358,"generated":362,"army_at_goal":10}
+{"seed":93001,"tick":100,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.00014604199895984493,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":100,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.0001447079994250089,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":100,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00014108299910731148,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":100,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001397500000166474,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93001,"tick":100,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00036704199919768143,"target":[4,20],"target_kind":"enemy general","ticks":30,"expanded":123,"generated":159,"army_at_goal":null}
+{"seed":93001,"tick":100,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00017825000031734817,"target":[20,7],"target_kind":"neutral city","ticks":1,"expanded":2,"generated":4,"army_at_goal":6}
+{"seed":93001,"tick":100,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00017575000128999818,"target":[20,7],"target_kind":"neutral city","ticks":1,"expanded":2,"generated":4,"army_at_goal":6}
+{"seed":93001,"tick":100,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0009179999997286359,"target":[20,7],"target_kind":"neutral city","ticks":1,"expanded":392,"generated":400,"army_at_goal":6}
+{"seed":93002,"tick":50,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0002033340006164508,"target":[4,5],"target_kind":"enemy general","ticks":20,"expanded":56,"generated":74,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.0005355419998522848,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0005470409996632952,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0005837499993504025,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00012037499982398003,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00013933400077803526,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00013741699876845814,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":50,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.0001384169991069939,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":75,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0002123750000464497,"target":[4,5],"target_kind":"enemy general","ticks":20,"expanded":56,"generated":74,"army_at_goal":null}
+{"seed":93002,"tick":75,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00044308300130069256,"target":[7,7],"target_kind":"enemy tile","ticks":29,"expanded":136,"generated":153,"army_at_goal":8}
+{"seed":93002,"tick":75,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0004206669982522726,"target":[6,7],"target_kind":"enemy tile","ticks":30,"expanded":120,"generated":156,"army_at_goal":7}
+{"seed":93002,"tick":75,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0008594169994466938,"target":[7,7],"target_kind":"enemy tile","ticks":29,"expanded":355,"generated":358,"army_at_goal":8}
+{"seed":93002,"tick":75,"wait_side":0,"side":1,"variant":"base_a1","seconds":7.675000051676761e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":75,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.000251750001552864,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":75,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.0002508329998818226,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":75,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00023191600121208467,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":100,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0002475829987815814,"target":[4,5],"target_kind":"enemy general","ticks":20,"expanded":56,"generated":74,"army_at_goal":null}
+{"seed":93002,"tick":100,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.0002990419998241123,"target":[19,3],"target_kind":"neutral city","ticks":3,"expanded":9,"generated":14,"army_at_goal":4}
+{"seed":93002,"tick":100,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00035691599987330846,"target":[19,3],"target_kind":"neutral city","ticks":3,"expanded":47,"generated":69,"army_at_goal":4}
+{"seed":93002,"tick":100,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0010272079998685513,"target":[19,3],"target_kind":"neutral city","ticks":3,"expanded":384,"generated":392,"army_at_goal":4}
+{"seed":93002,"tick":100,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.0002485410004737787,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":100,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.0002531669997551944,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":100,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.0002489590006007347,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93002,"tick":100,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.0002622920001158491,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":50,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.00011016699863830581,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":50,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00016112500088638626,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":50,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.0001765830002113944,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":50,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001604589997441508,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":50,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00017091700101445895,"target":[9,10],"target_kind":"enemy tile","ticks":19,"expanded":45,"generated":63,"army_at_goal":null}
+{"seed":93003,"tick":50,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00031975000092643313,"target":[9,10],"target_kind":"enemy tile","ticks":21,"expanded":94,"generated":137,"army_at_goal":4}
+{"seed":93003,"tick":50,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00019287499890197068,"target":[9,10],"target_kind":"enemy tile","ticks":23,"expanded":30,"generated":48,"army_at_goal":2}
+{"seed":93003,"tick":50,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006462920009653317,"target":[9,10],"target_kind":"enemy tile","ticks":21,"expanded":283,"generated":284,"army_at_goal":4}
+{"seed":93003,"tick":75,"wait_side":1,"side":0,"variant":"base_a1","seconds":7.470799937436823e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":75,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00017012500029522926,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":75,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00016658299864502624,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":75,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001687500007392373,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":75,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00023299999884329736,"target":[8,7],"target_kind":"enemy general","ticks":23,"expanded":66,"generated":89,"army_at_goal":null}
+{"seed":93003,"tick":75,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00035445800131128635,"target":[12,10],"target_kind":"enemy tile","ticks":18,"expanded":81,"generated":116,"army_at_goal":20}
+{"seed":93003,"tick":75,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00025370900038979016,"target":[8,10],"target_kind":"enemy tile","ticks":22,"expanded":27,"generated":44,"army_at_goal":16}
+{"seed":93003,"tick":75,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0009141659993474605,"target":[12,10],"target_kind":"enemy tile","ticks":18,"expanded":362,"generated":372,"army_at_goal":20}
+{"seed":93003,"tick":100,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.0002390000008745119,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":100,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00027479100026539527,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":100,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00025704199833853636,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":100,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00025749999986146577,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93003,"tick":100,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00024116700114973355,"target":[8,7],"target_kind":"enemy general","ticks":23,"expanded":66,"generated":89,"army_at_goal":null}
+{"seed":93003,"tick":100,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00026908300060313195,"target":[18,18],"target_kind":"neutral city","ticks":2,"expanded":4,"generated":8,"army_at_goal":5}
+{"seed":93003,"tick":100,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.0002574579993961379,"target":[18,18],"target_kind":"neutral city","ticks":2,"expanded":3,"generated":6,"army_at_goal":5}
+{"seed":93003,"tick":100,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0011132079998787958,"target":[18,18],"target_kind":"neutral city","ticks":2,"expanded":427,"generated":442,"army_at_goal":5}
+{"seed":93004,"tick":50,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00025595800070732366,"target":[3,12],"target_kind":"enemy general","ticks":19,"expanded":78,"generated":105,"army_at_goal":null}
+{"seed":93004,"tick":50,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00026504099878366105,"target":[7,13],"target_kind":"enemy tile","ticks":14,"expanded":65,"generated":93,"army_at_goal":11}
+{"seed":93004,"tick":50,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00018737500067800283,"target":[5,14],"target_kind":"enemy tile","ticks":15,"expanded":23,"generated":50,"army_at_goal":10}
+{"seed":93004,"tick":50,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.000704333000612678,"target":[7,13],"target_kind":"enemy tile","ticks":14,"expanded":309,"generated":311,"army_at_goal":11}
+{"seed":93004,"tick":50,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00010870900041481946,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":50,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.0001451660009479383,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":50,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.0001403339992975816,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":50,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00013983299868414178,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":75,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00025749999986146577,"target":[3,12],"target_kind":"enemy general","ticks":19,"expanded":78,"generated":105,"army_at_goal":null}
+{"seed":93004,"tick":75,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00029508400075428654,"target":[7,16],"target_kind":"enemy tile","ticks":11,"expanded":49,"generated":76,"army_at_goal":27}
+{"seed":93004,"tick":75,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00023024999973131344,"target":[3,17],"target_kind":"enemy tile","ticks":14,"expanded":15,"generated":36,"army_at_goal":24}
+{"seed":93004,"tick":75,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0005796249988634372,"target":[3,12],"target_kind":"enemy general","ticks":19,"expanded":184,"generated":213,"army_at_goal":3}
+{"seed":93004,"tick":75,"wait_side":0,"side":1,"variant":"base_a1","seconds":7.125000047381036e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":75,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.0001910840001073666,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":75,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00019416699979046825,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":75,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00019500000053085387,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":100,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0002590420008345973,"target":[3,12],"target_kind":"enemy general","ticks":19,"expanded":78,"generated":105,"army_at_goal":null}
+{"seed":93004,"tick":100,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.0002287500010424992,"target":[10,19],"target_kind":"neutral city","ticks":5,"expanded":15,"generated":29,"army_at_goal":5}
+{"seed":93004,"tick":100,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00023066699941409752,"target":[3,17],"target_kind":"enemy tile","ticks":14,"expanded":15,"generated":37,"army_at_goal":37}
+{"seed":93004,"tick":100,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0005935829994996311,"target":[3,12],"target_kind":"enemy general","ticks":19,"expanded":188,"generated":220,"army_at_goal":10}
+{"seed":93004,"tick":100,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00017475000095146243,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":100,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00016925000090850517,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":100,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00016537499868718442,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93004,"tick":100,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.0002037920003203908,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":50,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.00014650000048277434,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":50,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00016275000052701216,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":50,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00014979200022935402,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":50,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001460840012441622,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":50,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00015741700008220505,"target":[6,0],"target_kind":"enemy general","ticks":19,"expanded":31,"generated":44,"army_at_goal":null}
+{"seed":93005,"tick":50,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.0002072080005746102,"target":[10,0],"target_kind":"enemy tile","ticks":15,"expanded":26,"generated":35,"army_at_goal":10}
+{"seed":93005,"tick":50,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.0001827910000429256,"target":[10,0],"target_kind":"enemy tile","ticks":15,"expanded":16,"generated":25,"army_at_goal":10}
+{"seed":93005,"tick":50,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006570839996129507,"target":[10,0],"target_kind":"enemy tile","ticks":15,"expanded":270,"generated":275,"army_at_goal":10}
+{"seed":93005,"tick":75,"wait_side":1,"side":0,"variant":"base_a1","seconds":8.516700108884834e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":75,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00021583300076599699,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":75,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00021412500063888729,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":75,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00021445800121000502,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":75,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00015424999946844764,"target":[6,0],"target_kind":"enemy general","ticks":19,"expanded":31,"generated":44,"army_at_goal":null}
+{"seed":93005,"tick":75,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00025224999990314245,"target":[11,0],"target_kind":"enemy tile","ticks":14,"expanded":25,"generated":34,"army_at_goal":24}
+{"seed":93005,"tick":75,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00023754099856887478,"target":[11,0],"target_kind":"enemy tile","ticks":14,"expanded":15,"generated":24,"army_at_goal":24}
+{"seed":93005,"tick":75,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.00042595800005074125,"target":[6,0],"target_kind":"enemy general","ticks":19,"expanded":110,"generated":128,"army_at_goal":1}
+{"seed":93005,"tick":100,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.0002058749996649567,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":100,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00019187499856343493,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":100,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00018833300055121072,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":100,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00018833300055121072,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93005,"tick":100,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00015366700063168537,"target":[6,0],"target_kind":"enemy general","ticks":19,"expanded":31,"generated":44,"army_at_goal":null}
+{"seed":93005,"tick":100,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.000269042000581976,"target":[11,0],"target_kind":"enemy tile","ticks":14,"expanded":25,"generated":34,"army_at_goal":37}
+{"seed":93005,"tick":100,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00024945800032583065,"target":[11,0],"target_kind":"enemy tile","ticks":14,"expanded":15,"generated":24,"army_at_goal":37}
+{"seed":93005,"tick":100,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.000449875000413158,"target":[6,0],"target_kind":"enemy general","ticks":19,"expanded":112,"generated":132,"army_at_goal":11}
+{"seed":93006,"tick":50,"wait_side":0,"side":0,"variant":"base_a1","seconds":3.491700044833124e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.0003841660000034608,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0005402500009950018,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0003918330003216397,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":1,"variant":"base_a1","seconds":5.5500000598840415e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":1,"variant":"tg_a1","seconds":9.000000136438757e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":1,"variant":"tg_a15","seconds":8.875000094121788e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":50,"wait_side":0,"side":1,"variant":"tg_payback","seconds":9.083400072995573e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":75,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0005052500000601867,"target":[18,17],"target_kind":"enemy general","ticks":35,"expanded":201,"generated":242,"army_at_goal":null}
+{"seed":93006,"tick":75,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00037341699862736277,"target":[16,16],"target_kind":"enemy tile","ticks":32,"expanded":154,"generated":181,"army_at_goal":5}
+{"seed":93006,"tick":75,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0001948749995790422,"target":[16,16],"target_kind":"enemy tile","ticks":32,"expanded":41,"generated":66,"army_at_goal":5}
+{"seed":93006,"tick":75,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0006514169999718433,"target":[16,16],"target_kind":"enemy tile","ticks":32,"expanded":307,"generated":309,"army_at_goal":5}
+{"seed":93006,"tick":75,"wait_side":0,"side":1,"variant":"base_a1","seconds":3.491700044833124e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":75,"wait_side":0,"side":1,"variant":"tg_a1","seconds":7.645900041097775e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":75,"wait_side":0,"side":1,"variant":"tg_a15","seconds":7.400000140478369e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":75,"wait_side":0,"side":1,"variant":"tg_payback","seconds":7.30419997125864e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":100,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.0005034160003560828,"target":[18,17],"target_kind":"enemy general","ticks":35,"expanded":201,"generated":242,"army_at_goal":null}
+{"seed":93006,"tick":100,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00012200000128359534,"target":[1,1],"target_kind":"neutral city","ticks":2,"expanded":4,"generated":6,"army_at_goal":11}
+{"seed":93006,"tick":100,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00019183299991709646,"target":[16,16],"target_kind":"enemy tile","ticks":32,"expanded":41,"generated":67,"army_at_goal":19}
+{"seed":93006,"tick":100,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0008947089991124813,"target":[1,1],"target_kind":"neutral city","ticks":2,"expanded":429,"generated":441,"army_at_goal":11}
+{"seed":93006,"tick":100,"wait_side":0,"side":1,"variant":"base_a1","seconds":8.954199984145816e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":100,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00014362500041897874,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":100,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00013854099961463362,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93006,"tick":100,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00014445799934037495,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":50,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.00011195800107088871,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":50,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00014591699982702266,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":50,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00014474999989033677,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":50,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001453749991924269,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":50,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00019287499890197068,"target":[20,2],"target_kind":"enemy tile","ticks":23,"expanded":54,"generated":75,"army_at_goal":null}
+{"seed":93007,"tick":50,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00024516699886589777,"target":[18,5],"target_kind":"enemy tile","ticks":20,"expanded":59,"generated":76,"army_at_goal":5}
+{"seed":93007,"tick":50,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00018033299966191407,"target":[18,5],"target_kind":"enemy tile","ticks":20,"expanded":23,"generated":37,"army_at_goal":5}
+{"seed":93007,"tick":50,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006940839994058479,"target":[18,5],"target_kind":"enemy tile","ticks":20,"expanded":302,"generated":306,"army_at_goal":5}
+{"seed":93007,"tick":75,"wait_side":1,"side":0,"variant":"base_a1","seconds":8.179199903679546e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":75,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00013170800048101228,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":75,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.0001266249983018497,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":75,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001259159998880932,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":75,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.0002376669999648584,"target":[22,6],"target_kind":"enemy general","ticks":25,"expanded":71,"generated":92,"army_at_goal":null}
+{"seed":93007,"tick":75,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.0002534590003051562,"target":[16,6],"target_kind":"enemy tile","ticks":17,"expanded":37,"generated":50,"army_at_goal":18}
+{"seed":93007,"tick":75,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00021583300076599699,"target":[16,6],"target_kind":"enemy tile","ticks":17,"expanded":18,"generated":30,"army_at_goal":18}
+{"seed":93007,"tick":75,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.001043000000208849,"target":[16,6],"target_kind":"enemy tile","ticks":17,"expanded":426,"generated":444,"army_at_goal":18}
+{"seed":93007,"tick":100,"wait_side":1,"side":0,"variant":"base_a1","seconds":0.00017645799925958272,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":100,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00017133300025307108,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":100,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.0001679580000200076,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":100,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00017104200014728121,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93007,"tick":100,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00023766599952068646,"target":[22,6],"target_kind":"enemy general","ticks":25,"expanded":71,"generated":92,"army_at_goal":null}
+{"seed":93007,"tick":100,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00022354200154950377,"target":[8,0],"target_kind":"neutral city","ticks":3,"expanded":9,"generated":15,"army_at_goal":3}
+{"seed":93007,"tick":100,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00022108400116849225,"target":[14,5],"target_kind":"enemy tile","ticks":14,"expanded":15,"generated":26,"army_at_goal":37}
+{"seed":93007,"tick":100,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0011353750014677644,"target":[8,0],"target_kind":"neutral city","ticks":3,"expanded":449,"generated":470,"army_at_goal":3}
+{"seed":93008,"tick":50,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00016470899936393835,"target":[20,14],"target_kind":"enemy general","ticks":17,"expanded":38,"generated":59,"army_at_goal":null}
+{"seed":93008,"tick":50,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.0001948749995790422,"target":[16,14],"target_kind":"enemy tile","ticks":13,"expanded":34,"generated":50,"army_at_goal":12}
+{"seed":93008,"tick":50,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00015187499957391992,"target":[16,14],"target_kind":"enemy tile","ticks":13,"expanded":14,"generated":30,"army_at_goal":12}
+{"seed":93008,"tick":50,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0008387500001845183,"target":[16,14],"target_kind":"enemy tile","ticks":13,"expanded":386,"generated":387,"army_at_goal":12}
+{"seed":93008,"tick":50,"wait_side":0,"side":1,"variant":"base_a1","seconds":9.891700028674677e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":50,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00011341699973854702,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":50,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00011341699973854702,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":50,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.0001138339994213311,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":75,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00016954199963947758,"target":[20,14],"target_kind":"enemy general","ticks":17,"expanded":38,"generated":59,"army_at_goal":null}
+{"seed":93008,"tick":75,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00021399999968707561,"target":[16,15],"target_kind":"enemy tile","ticks":12,"expanded":32,"generated":47,"army_at_goal":26}
+{"seed":93008,"tick":75,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00017370900059177075,"target":[16,15],"target_kind":"enemy tile","ticks":12,"expanded":13,"generated":28,"army_at_goal":26}
+{"seed":93008,"tick":75,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0004518330006249016,"target":[20,14],"target_kind":"enemy general","ticks":17,"expanded":162,"generated":194,"army_at_goal":4}
+{"seed":93008,"tick":75,"wait_side":0,"side":1,"variant":"base_a1","seconds":6.37499997537816e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":75,"wait_side":0,"side":1,"variant":"tg_a1","seconds":9.170900011667982e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":75,"wait_side":0,"side":1,"variant":"tg_a15","seconds":9.016700096253771e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":75,"wait_side":0,"side":1,"variant":"tg_payback","seconds":8.758399962971453e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":100,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00016583299839112442,"target":[20,14],"target_kind":"enemy general","ticks":17,"expanded":38,"generated":59,"army_at_goal":null}
+{"seed":93008,"tick":100,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00021608299903164152,"target":[16,15],"target_kind":"enemy tile","ticks":12,"expanded":32,"generated":47,"army_at_goal":39}
+{"seed":93008,"tick":100,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00017587499860383105,"target":[16,15],"target_kind":"enemy tile","ticks":12,"expanded":13,"generated":28,"army_at_goal":39}
+{"seed":93008,"tick":100,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0004946249991917284,"target":[20,14],"target_kind":"enemy general","ticks":17,"expanded":167,"generated":204,"army_at_goal":14}
+{"seed":93008,"tick":100,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00012395899830153212,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":100,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00012837500071327668,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":100,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00012725000124191865,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93008,"tick":100,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00012712500029010698,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":0,"variant":"base_a1","seconds":4.2583000322338194e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":0,"variant":"tg_a1","seconds":8.075000005192123e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":0,"variant":"tg_a15","seconds":7.570799971290398e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":0,"variant":"tg_payback","seconds":7.52910000301199e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":1,"variant":"base_a1","seconds":3.0249999326770194e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.0006659999999101274,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.0008082079984887969,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":50,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0007088340007612715,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":75,"wait_side":1,"side":0,"variant":"base_a1","seconds":4.084000465809368e-06,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":75,"wait_side":1,"side":0,"variant":"tg_a1","seconds":4.916999387205578e-06,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":75,"wait_side":1,"side":0,"variant":"tg_a15","seconds":4.2909996409434825e-06,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":75,"wait_side":1,"side":0,"variant":"tg_payback","seconds":4.1669991333037615e-06,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":75,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00023179199888545554,"target":[0,21],"target_kind":"enemy general","ticks":26,"expanded":72,"generated":92,"army_at_goal":null}
+{"seed":93009,"tick":75,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00020754099932673853,"target":[1,20],"target_kind":"enemy tile","ticks":24,"expanded":69,"generated":89,"army_at_goal":14}
+{"seed":93009,"tick":75,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00014195899893820751,"target":[0,20],"target_kind":"enemy tile","ticks":27,"expanded":33,"generated":55,"army_at_goal":10}
+{"seed":93009,"tick":75,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0008527919999323785,"target":[0,22],"target_kind":"neutral city","ticks":27,"expanded":423,"generated":425,"army_at_goal":4}
+{"seed":93009,"tick":100,"wait_side":1,"side":0,"variant":"base_a1","seconds":8.379099926969502e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":100,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00014554199879057705,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":100,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00014133399963611737,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":100,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.0001441670010535745,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93009,"tick":100,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.000231333000556333,"target":[0,21],"target_kind":"enemy general","ticks":26,"expanded":72,"generated":92,"army_at_goal":null}
+{"seed":93009,"tick":100,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.0002275829992868239,"target":[1,19],"target_kind":"enemy tile","ticks":23,"expanded":66,"generated":86,"army_at_goal":28}
+{"seed":93009,"tick":100,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00016345899894076865,"target":[0,19],"target_kind":"enemy tile","ticks":26,"expanded":32,"generated":53,"army_at_goal":25}
+{"seed":93009,"tick":100,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006571249996341066,"target":[0,21],"target_kind":"enemy general","ticks":26,"expanded":281,"generated":307,"army_at_goal":6}
+{"seed":93010,"tick":50,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00019533399972715415,"target":[21,5],"target_kind":"enemy general","ticks":20,"expanded":54,"generated":76,"army_at_goal":null}
+{"seed":93010,"tick":50,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00023591600074723829,"target":[19,7],"target_kind":"enemy tile","ticks":20,"expanded":62,"generated":83,"army_at_goal":5}
+{"seed":93010,"tick":50,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00018279199866810814,"target":[19,7],"target_kind":"enemy tile","ticks":20,"expanded":35,"generated":59,"army_at_goal":5}
+{"seed":93010,"tick":50,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0008054590016399743,"target":[19,7],"target_kind":"enemy tile","ticks":20,"expanded":374,"generated":376,"army_at_goal":5}
+{"seed":93010,"tick":50,"wait_side":0,"side":1,"variant":"base_a1","seconds":9.145900003204588e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":50,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00011470900062704459,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":50,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00011429100050008856,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":50,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00011162500049977098,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":75,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00019704199985426385,"target":[21,5],"target_kind":"enemy general","ticks":20,"expanded":54,"generated":76,"army_at_goal":null}
+{"seed":93010,"tick":75,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.0002471249990776414,"target":[18,7],"target_kind":"enemy tile","ticks":19,"expanded":60,"generated":81,"army_at_goal":19}
+{"seed":93010,"tick":75,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.0002045419987553032,"target":[18,7],"target_kind":"enemy tile","ticks":19,"expanded":34,"generated":57,"army_at_goal":19}
+{"seed":93010,"tick":75,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0011114999997516861,"target":[18,7],"target_kind":"enemy tile","ticks":19,"expanded":395,"generated":402,"army_at_goal":19}
+{"seed":93010,"tick":75,"wait_side":0,"side":1,"variant":"base_a1","seconds":7.274999916262459e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":75,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00011495799844851717,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":75,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00010574999942036811,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":75,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.00010591600039333571,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":100,"wait_side":0,"side":0,"variant":"base_a1","seconds":0.00023979199977475218,"target":[21,5],"target_kind":"enemy general","ticks":20,"expanded":54,"generated":76,"army_at_goal":null}
+{"seed":93010,"tick":100,"wait_side":0,"side":0,"variant":"tg_a1","seconds":0.00016437500016763806,"target":[8,11],"target_kind":"neutral city","ticks":1,"expanded":2,"generated":4,"army_at_goal":12}
+{"seed":93010,"tick":100,"wait_side":0,"side":0,"variant":"tg_a15","seconds":0.00016200000027311035,"target":[8,11],"target_kind":"neutral city","ticks":1,"expanded":2,"generated":4,"army_at_goal":12}
+{"seed":93010,"tick":100,"wait_side":0,"side":0,"variant":"tg_payback","seconds":0.0010835000011866214,"target":[21,5],"target_kind":"enemy general","ticks":24,"expanded":380,"generated":410,"army_at_goal":2}
+{"seed":93010,"tick":100,"wait_side":0,"side":1,"variant":"base_a1","seconds":0.00015775000065332279,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":100,"wait_side":0,"side":1,"variant":"tg_a1","seconds":0.00016474999938509427,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":100,"wait_side":0,"side":1,"variant":"tg_a15","seconds":0.00014466699940385297,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93010,"tick":100,"wait_side":0,"side":1,"variant":"tg_payback","seconds":0.0001523749997431878,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":50,"wait_side":1,"side":0,"variant":"base_a1","seconds":6.475000009231735e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":50,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00010508400009712204,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":50,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00010699999984353781,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":50,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00010945800022454932,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":50,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00023550000150862616,"target":[21,2],"target_kind":"enemy general","ticks":18,"expanded":62,"generated":88,"army_at_goal":null}
+{"seed":93011,"tick":50,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00026320899996790104,"target":[19,2],"target_kind":"enemy tile","ticks":20,"expanded":78,"generated":104,"army_at_goal":5}
+{"seed":93011,"tick":50,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00022366700068232603,"target":[19,2],"target_kind":"enemy tile","ticks":24,"expanded":56,"generated":81,"army_at_goal":1}
+{"seed":93011,"tick":50,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0009083330005523749,"target":[19,2],"target_kind":"enemy tile","ticks":20,"expanded":392,"generated":393,"army_at_goal":5}
+{"seed":93011,"tick":75,"wait_side":1,"side":0,"variant":"base_a1","seconds":4.4082999011152424e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":75,"wait_side":1,"side":0,"variant":"tg_a1","seconds":8.908299969334621e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":75,"wait_side":1,"side":0,"variant":"tg_a15","seconds":8.962500032794196e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":75,"wait_side":1,"side":0,"variant":"tg_payback","seconds":8.545899981982075e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":75,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.0002190830000472488,"target":[21,2],"target_kind":"enemy general","ticks":18,"expanded":62,"generated":88,"army_at_goal":null}
+{"seed":93011,"tick":75,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00024845899861247744,"target":[18,2],"target_kind":"enemy tile","ticks":19,"expanded":76,"generated":100,"army_at_goal":19}
+{"seed":93011,"tick":75,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00020779099941137247,"target":[18,2],"target_kind":"enemy tile","ticks":23,"expanded":55,"generated":79,"army_at_goal":15}
+{"seed":93011,"tick":75,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006379169990395894,"target":[21,2],"target_kind":"enemy general","ticks":22,"expanded":273,"generated":304,"army_at_goal":2}
+{"seed":93011,"tick":100,"wait_side":1,"side":0,"variant":"base_a1","seconds":7.329199979722034e-05,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":100,"wait_side":1,"side":0,"variant":"tg_a1","seconds":0.00012349999997240957,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":100,"wait_side":1,"side":0,"variant":"tg_a15","seconds":0.00011958299910475034,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":100,"wait_side":1,"side":0,"variant":"tg_payback","seconds":0.00011937499948544428,"target":null,"target_kind":null,"ticks":null,"expanded":0,"generated":0,"army_at_goal":null}
+{"seed":93011,"tick":100,"wait_side":1,"side":1,"variant":"base_a1","seconds":0.00021174999892537016,"target":[21,2],"target_kind":"enemy general","ticks":18,"expanded":62,"generated":88,"army_at_goal":null}
+{"seed":93011,"tick":100,"wait_side":1,"side":1,"variant":"tg_a1","seconds":0.00014533300054608844,"target":[15,8],"target_kind":"neutral city","ticks":6,"expanded":19,"generated":33,"army_at_goal":5}
+{"seed":93011,"tick":100,"wait_side":1,"side":1,"variant":"tg_a15","seconds":0.00013379200026975013,"target":[15,8],"target_kind":"neutral city","ticks":6,"expanded":13,"generated":24,"army_at_goal":5}
+{"seed":93011,"tick":100,"wait_side":1,"side":1,"variant":"tg_payback","seconds":0.0006532919996971032,"target":[21,2],"target_kind":"enemy general","ticks":22,"expanded":285,"generated":319,"army_at_goal":14}

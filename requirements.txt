@@ -1,0 +1,16 @@
+# Bot, simulator, arena and evaluation (tested with Python 3.12)
+numpy==2.4.1
+pygame==2.6.1
+jax==0.11.0
+jaxlib==0.11.0
+
+# Charts, report figures and presentation build
+matplotlib==3.10.8
+pillow==12.1.0
+python-pptx==1.0.2
+
+# Tests
+pytest==9.0.3
+
+# Optional: only to retrain the opponent classifier (models/train_v51_classifier.py, Apple MPS)
+torch==2.10.0

@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+venv/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+
+# Web app (legacy/web): dependencies, builds, deployment state
+legacy/web/node_modules/
+legacy/web/.next/
+legacy/web/.vercel/
+legacy/web/tsconfig.tsbuildinfo
+node_modules/
+.next/
+.vercel/
+
+# Generated replays and scratch output
+replay*.html
+/tmp/
+arena_shots/
+
+# Large regenerable training data (rebuild with models/gen_labels40.py)
+models/ranker40_data/
+
+# LaTeX build files
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.fdb_latexmk
+report/*.fls
+report/*.bbl
+report/*.blg
+
+# Office lock files
+~$*
+
+# Third-party conference/journal PDFs are not redistributed (see papers/README.md);
+# the arXiv papers are kept.
+papers/*.pdf
+!papers/straka2026_superhuman_generals_selfplay_arXiv.pdf
+!papers/straka2025_artificial_generals_intelligence_zerov3.pdf
+!papers/moraes2018_asymmetric_action_abstractions_RTS_AAAI.pdf
+!papers/russell1990_finegrained_decision_theoretic_search_control_UAI.pdf
+
+# report is kept locally, not published
+report/
+project_report/*.aux
+project_report/*.log
+project_report/*.out

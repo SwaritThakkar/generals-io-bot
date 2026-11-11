@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=NavyBlue,citecolor=NavyBlue,urlcolor=NavyBlue,
+  pdftitle={Making a Bot for Generals.io using Search Algorithms and Offline Learning}}
+
+\definecolor{keyblue}{RGB}{25,25,140}
+\newcommand{\hl}[1]{\textcolor{keyblue}{\textbf{#1}}}
+\newtcolorbox{keyidea}{colback=blue!4,colframe=keyblue,boxrule=0.5pt,arc=0pt,
+  left=4pt,right=4pt,top=3pt,bottom=3pt,fontupper=\small}
+\captionsetup{font=small,labelfont=bf}
+\graphicspath{{figures/}}
+
+\newcommand{\GITHUBURL}{https://github.com/SwaritThakkar/generals-io-bot}
+
+\title{\textbf{Making a Bot for Generals.io}\\[2pt]
+\textbf{using Search Algorithms and Offline Learning}\\[4pt]
+\large Final Project Report}
+\author{DAC-203 -- Artificial Intelligence}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We build a game-playing agent for Generals.io, a real-time strategy game with simultaneous moves (in the original game also with
+hidden information). The agent is assembled from methods of the AI textbook (search, probabilistic
+reasoning, decision making under uncertainty, and supervised learning) together with ideas from four
+research papers on real-time strategy (RTS) games. This report describes the game, the aim of the
+project, the papers that form our baseline, and, in detail, what the bot does in each half-second turn.
+\end{abstract}
+
+\input{body}
+
+\end{document}

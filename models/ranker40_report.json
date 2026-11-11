@@ -1,0 +1,72 @@
+{
+ "test_ranker": {
+  "top1_recall": 0.5662,
+  "top1_regret": 0.0163,
+  "top2_recall": 0.7282,
+  "top2_regret": 0.0059,
+  "top3_recall": 0.8014,
+  "top3_regret": 0.0037
+ },
+ "test_random": {
+  "top1_recall": 0.4855,
+  "top1_regret": 0.022,
+  "top2_recall": 0.6487,
+  "top2_regret": 0.0094,
+  "top3_recall": 0.7497,
+  "top3_regret": 0.0062
+ },
+ "n_train": 6349,
+ "n_test": 1722,
+ "device": "mps",
+ "test_ranker_opening": {
+  "top1_recall": 0.7075,
+  "top1_regret": 0.011,
+  "top2_recall": 0.8776,
+  "top2_regret": 0.0054,
+  "top3_recall": 0.983,
+  "top3_regret": 0.0019
+ },
+ "test_random_opening": {
+  "top1_recall": 0.4796,
+  "top1_regret": 0.033,
+  "top2_recall": 0.7313,
+  "top2_regret": 0.0172,
+  "top3_recall": 0.9048,
+  "top3_regret": 0.0043
+ },
+ "mean_plans_opening": 4.0,
+ "test_ranker_mid": {
+  "top1_recall": 0.3903,
+  "top1_regret": 0.0209,
+  "top2_recall": 0.5998,
+  "top2_regret": 0.007,
+  "top3_recall": 0.6848,
+  "top3_regret": 0.0048
+ },
+ "test_random_mid": {
+  "top1_recall": 0.3132,
+  "top1_regret": 0.0232,
+  "top2_recall": 0.5079,
+  "top2_regret": 0.0128,
+  "top3_recall": 0.6482,
+  "top3_regret": 0.0056
+ },
+ "mean_plans_mid": 8.0,
+ "test_ranker_end": {
+  "top1_recall": 0.8942,
+  "top1_regret": 0.0089,
+  "top2_recall": 0.9351,
+  "top2_regret": 0.0036,
+  "top3_recall": 0.9567,
+  "top3_regret": 0.0024
+ },
+ "test_random_end": {
+  "top1_recall": 0.8942,
+  "top1_regret": 0.0058,
+  "top2_recall": 0.9303,
+  "top2_regret": 0.0057,
+  "top3_recall": 0.9495,
+  "top3_regret": 0.0024
+ },
+ "mean_plans_end": 8.0
+}

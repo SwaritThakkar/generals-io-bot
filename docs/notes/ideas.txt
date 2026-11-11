@@ -1,0 +1,386 @@
+# this is my brainstorming notebook.
+
+## observations -
+1. there are a lot of options.. branching factor is huge. i need to do some heuristic thing... ignore things that are obviously not needed.
+2. since we have complete information about the game. i can simply use math to find the optimal moves to capture it.
+3. A*/Djikstra for finding the path and then modelling the moves will simply give me the direct math equation for this
+4. so there is no search algorithm for this. is this nphard or what
+5. but that would be true if opponent was not there. 
+6. so yes, ai is used here
+7. what can i do then?
+8. also i need to account that i cant take more time as opponent will come. this is a real time game, thus making it different than other games/
+9. branching factor is a lot, so cant do that. i need a local search kind of thing.
+10. evaluation funciton i will have, neighbour generating funciton i can have. 
+11. winning state how to define.
+12. this is a real time strategy game, so the evaluation has to fast, very fast tbh
+13. split the game based on time (early game / mid game / end game) (chess like shit)
+
+
+
+## ideas -
+1. have an evaluation and neighbour generating function and then perform local search using some algorithm. (minimax + gradient descent feeling)
+2. utility of node expansion is going to come very very very handy here 
+3. break the game into sections based on time => early game, mid game, endgame; based on the time of the game, we emplot different strategy (maybe smooth, or sudden);
+4. reduce branching factor by removing obvious branches that make no difference
+5. maybe i wait for T, then act; this is not covered by any algorithm. then my time for computation is also high. because the game is entirely observable, i can "predict with Probability ->1" the state at T, hence can start the computation at the start only. thus acting of the more "informed" search at the end of T only, together with "state generation" and the move. (this kind of complex scheduling is also required)
+6. queue of the game structure is also an inefficiency you can point out.
+
+================================================================================
+## where my existing ideas landed, after reading the papers
+================================================================================
+
+obs 4  "is this np-hard or what"
+       The sub-problems are. Gathering army optimally is a prize-collecting
+       Steiner tree (NP-hard). Choosing what to spend a turn budget on is
+       multiple-choice knapsack (NP-hard). The full game is worse than that.
+       So: no closed form, and that is exactly why search is the right tool.
+       Worth saying out loud - it justifies the whole project in one line.
+
+obs 9  "branching factor is a lot, need a local search kind of thing"
+       Correct, and it has a name: Large Neighbourhood Search. Destroy part of
+       a plan, re-solve just that part, keep it if better, repeat until the
+       clock runs out. Anytime by construction.
+
+obs 13 "split the game by time (early/mid/end)"  -> see NEW IDEA 4 below.
+       The instinct is right but hardcoding tick ranges is the weak version.
+
+idea 1 "evaluation + neighbour generation + local search"
+       Built it. 20% win rate. Loses 12/20 by general capture with land dead
+       even. The reason is that `simulate` assumes the opponent passes, so an
+       attack is invisible. Fix is in what we SEARCH, not how we SCORE.
+
+idea 2 "utility of node expansion is going to come very very handy"
+       This is Russell & Wefald's "value of computation" (UAI 1990), and it is
+       the foundation of the entire metareasoning literature. You arrived at
+       the right idea independently. See NEW IDEA 1 - our game makes it
+       computable rather than merely estimable, which is unusual.
+
+idea 4 "reduce branching factor by removing obvious branches"
+       Two published versions: asymmetric action abstraction (prune the
+       OPPONENT's moves hard, keep ours sharp) and ProbCut (use a cheap
+       shallow search to decide whether a deep one is worth it).
+
+idea 5 "wait for T, then act... entirely observable so I can predict the state
+        at T with probability -> 1, so start computing at the start"
+       THIS IS THE BEST IDEA IN THE FILE and it is not covered by any of the
+       five papers. Fully developed as NEW IDEA 2. Closest published relative
+       is Cserna/Ruml ICAPS 2017 (planning while acting), which supports it
+       but does not do what you are describing.
+
+idea 6 "the move queue is an inefficiency you can point out"
+       It is also an opportunity - it is a native implementation of "prefix
+       commitment" from the metareasoning paper. See NEW IDEA 3.
+
+
+================================================================================
+## NEW IDEAS - things to try this month
+================================================================================
+
+Framing for the presentation: these are hypotheses, not claims. Each one is
+cheap to test with the 200-game harness, and some of them will fail. Saying
+"I will try these and report what works" is stronger than pretending to know.
+
+
+--- IDEA 1 -----------------------------------------------------------------
+VALUE OF COMPUTATION IS *MEASURABLE* HERE, NOT JUST ESTIMABLE
+---------------------------------------------------------------------------
+
+  The hard part of Russell & Wefald's framework is estimating the benefit of
+  a computation before you do it. Everyone approximates it.
+
+  We do not have to. The JAX simulator evaluates EVERY legal move in one
+  batched call, 0.6 ms. So at the start of every tick we get the full
+  distribution of 1-ply scores for free.
+
+      gap = best_score - second_best_score
+
+  That gap is a direct, computed proxy for "could more thinking change my
+  answer?". A large gap means no amount of search will change the choice.
+  A small gap means the decision is genuinely open.
+
+  And the COST side is quantifiable too. Passing (the identity action) costs
+  exactly one tick of tempo, and we know the production rate:
+
+      rho = producers/2 + land/50      army per tick
+
+  So the cost of thinking for one more tick is about rho army, and the
+  benefit is bounded by the score spread. Both sides of Russell & Wefald's
+  inequality are computable in our domain.
+
+  *** MEASURED, 2026-09-07 - and it corrected the idea. See media/fig4. ***
+
+  I ran the scan over a full 300-tick game, sampling every 5 ticks, and the
+  gap between the best and second-best move is ALMOST ALWAYS EXACTLY ZERO.
+  Many moves are genuinely interchangeable - expanding into two equivalent
+  empty tiles gives an identical board score. So "gap to second" is the wrong
+  signal.
+
+  What does work is the FRACTION OF MOVES TIED AT THE BEST SCORE, and it turns
+  out to be strongly bimodal:
+
+      38% of ticks    almost nothing ties  -> 1-ply has already decided,
+                                              play immediately, ~3 ms
+      57% of ticks    most moves tie       -> 1-ply cannot separate them,
+                                              this is where the budget belongs
+       5% of ticks    in between
+
+  Because it is bimodal rather than spread out, a single threshold separates
+  the two cases cleanly - no delicate tuning.
+
+  That 38% is the headline number: better than a third of all ticks can be
+  settled for 0.6 ms instead of 500 ms, before writing any search at all.
+
+  TEST: fix total compute per game. Compare uniform allocation against
+  tie-fraction-driven allocation. Same compute, different distribution.
+
+  WHY IT MIGHT STILL FAIL: I have shown the signal is cheap and bimodal, not
+  that acting on it wins games. The 57% "blind" ticks might be ones where
+  deeper search does not help either.
+
+
+--- IDEA 2 -----------------------------------------------------------------
+SPECULATIVE PRE-COMPUTATION - my idea 5, developed
+---------------------------------------------------------------------------
+
+  The observation: production is fully deterministic. If nobody moved, the
+  board at tick t+k is EXACTLY computable from the board at tick t. Army
+  grows on a fixed schedule; nothing is random after map generation.
+
+  So the only uncertainty about the future is the <=k moves each side makes,
+  and each move perturbs a tiny region of a 529-tile board.
+
+  Consequence: while tick t is being played out, we can already be searching
+  tick t+1's problem, because we know almost all of it.
+
+  Three concrete versions, increasing in ambition:
+
+  (a) BASELINE PRE-ROLL. During the 0.5 s of tick t, compute the no-move
+      baseline board for t+1 and start the search on it. When the real moves
+      arrive, patch the few changed tiles and continue.
+
+  (b) SEARCH-TREE REPAIR. Do not throw away the tick-t search tree. The
+      opponent's move invalidates only the branches touching the tiles they
+      changed. Repair those; keep the rest. This is exactly ARA*'s INCONS
+      idea and min-conflicts' repair idea, applied to the SEARCH TREE ITSELF
+      rather than to a path or an assignment.
+
+  (c) COMMIT-AND-THINK. Queue a move we are confident about, then use the
+      whole of the next tick - during which we are not deciding anything - to
+      search the tick after that. This is where my "wait for T then act"
+      idea actually pays off: we are not idling, we are running ahead.
+
+  This effectively doubles the compute budget without any speedup, and it is
+  enabled specifically by perfect information plus deterministic production.
+  With fog it would be impossible - you could not predict the board because
+  you could not see it.
+
+  TEST: measure nodes searched per decision, with and without pre-roll.
+  Then win rate.
+
+  WHY IT MIGHT FAIL: engineering complexity. Repairing a search tree
+  correctly is fiddly and easy to get subtly wrong. Version (a) is safe;
+  attempt (b) only if (a) works.
+
+
+--- IDEA 3 -----------------------------------------------------------------
+THE MOVE QUEUE AS A COMPUTE BUDGET
+---------------------------------------------------------------------------
+
+  The game lets you queue a path of moves; the server plays one per tick.
+  Normally people treat this as a UI convenience.
+
+  Reframe it: EVERY QUEUED MOVE IS A TICK OF THINKING TIME BOUGHT.
+
+  If I queue a 12-step march home through my own territory, I have bought 12
+  ticks x 0.5 s = 6 SECONDS of uninterrupted computation, during which I owe
+  the game nothing.
+
+  So the commit decision is not "how confident am I" but a trade:
+
+      queue k moves  ->  gain k*0.5 s of thinking
+                     ->  risk acting on stale information for k ticks
+
+  And the risk is quantifiable: a path entirely inside our own territory with
+  no enemy stack within reach cannot go wrong. A path approaching contact can.
+
+  This is "prefix commitment" from the metareasoning paper, but with an
+  interpretation the paper does not have, because their domains do not have
+  a queue.
+
+  TEST: measure average committed-path length against win rate. There should
+  be an optimum - too short wastes the mechanism, too long acts blind.
+
+
+--- IDEA 4 -----------------------------------------------------------------
+LET THE GAME PHASE EMERGE, DO NOT HARDCODE IT
+---------------------------------------------------------------------------
+
+  My observation 13 said split the game into early/mid/endgame like chess.
+  Right instinct, but chess phases are defined by material and hardcoded tick
+  ranges would be arbitrary here.
+
+  Better: the phase is already visible in the 1-ply score distribution.
+
+      wide gaps, consistently   -> expansion phase, decisions are obvious
+      gaps collapse             -> contact, decisions are genuinely close
+      one move scores enormously-> a forcing sequence exists
+
+  So the phase DETECTS ITSELF from the metareasoning signal we are computing
+  anyway, and there is no threshold to hand-tune. Strategy switching then
+  becomes a consequence of budget allocation rather than a separate mechanism.
+
+  TEST: plot the score gap over a whole game. If it has clear regimes, the
+  idea is real and the plot is a good slide. If it is noise, drop it.
+
+
+--- IDEA 5 -----------------------------------------------------------------
+EVALUATION WEIGHTS DERIVED FROM THE RULES, NOT TUNED
+---------------------------------------------------------------------------
+
+  Straight from the production rules, no fitting:
+
+      producer (general/castle):  1 army / 2 ticks  = 0.50 army/tick
+      land tile:                  1 army / 50 ticks = 0.02 army/tick
+      => one castle is worth exactly 25 land tiles of production
+
+  Now price them. A tile costs 1 army permanently (the unit left behind).
+  A neutral castle costs its garrison, 40-50.
+
+      spend A army on land   -> A tiles     -> 0.02*A army/tick
+      spend A army on castle -> 1 producer  -> 0.50   army/tick
+      break-even at A = 25
+
+  Castles cost 40-50. So on production alone, BUYING LAND BEATS BUYING A
+  CASTLE BY ROUGHLY 1.8x, whenever that much free land is reachable.
+
+  That is a falsifiable claim about a game most people play by feel, and it
+  gives us evaluation weights that are DERIVED rather than tuned - which is
+  what keeps the whole agent learning-free.
+
+  TEST: two identical bots, one takes castles greedily, one never until free
+  land runs out. 200 games. The interesting output is not who wins but WHERE
+  THE CROSSOVER TICK IS.
+
+  WHY IT MIGHT FAIL: it ignores that castles are defensible and tiles are
+  recapturable for 2 army each. The experiment will tell us how much that
+  matters.
+
+
+--- IDEA 6 -----------------------------------------------------------------
+TIME-VARYING VALUE OF LAND (the 50-tick cycle)
+---------------------------------------------------------------------------
+
+  Every owned tile pays +1 army every 50 ticks, on a global schedule. So a
+  tile captured at tick 49 pays out one tick later; a tile captured at tick
+  51 waits 49 ticks for its first payment.
+
+  The marginal value of a tile therefore depends on where we are in the cycle:
+
+      value(tile at time t)  proportional to  1 / (1 + (50 - (t mod 50)))
+
+  This is derivable, it costs nothing to compute, and it predicts a real
+  rhythm: expand hard just before the tick, consolidate just after.
+
+  Strong players do this by instinct. We would be doing it because the
+  evaluation function says so.
+
+  TEST: add the cycle term, run 200 games. Also check whether the resulting
+  behaviour visibly changes in the viewer - that is a nice thing to show.
+
+
+--- IDEA 7 -----------------------------------------------------------------
+DECOMPOSE THE SIMULTANEOUS-MOVE MATRIX BY SPATIAL INDEPENDENCE
+---------------------------------------------------------------------------
+
+  Both players move at the same instant, so a game-tree node is really a
+  400 x 400 matrix of (my move, their move) pairs. Unmanageable.
+
+  But most of those pairs do not interact. My move on the left edge and their
+  move on the right edge affect disjoint tiles - the outcome is just the sum
+  of the two independent outcomes.
+
+  So partition the board into CONFLICT ZONES - regions where both players have
+  moves touching the same tiles - solve a small independent matrix per zone,
+  and add the values.
+
+      n zones, k moves each side  ->  n * k^2   instead of   k^n * k^n
+
+  This is AIMA section 6.5 (independent subproblems in CSPs) applied to a
+  game matrix instead of a constraint graph. The connection between chapters
+  5 and 6 is the interesting part.
+
+  TEST: measure how many independent zones actually occur in real positions.
+  If most positions have 3+ zones, the idea pays. If everything is one big
+  contested blob by midgame, it does not.
+
+  WHY IT MIGHT FAIL: exactly that - late-game positions may be fully
+  connected. Measure the zone count distribution BEFORE building it.
+
+
+--- IDEA 8 -----------------------------------------------------------------
+PROVE SAFETY, THEN STOP DEFENDING
+---------------------------------------------------------------------------
+
+  Because there is no fog and the dynamics are deterministic, we can ask a
+  question no fogged agent can:
+
+      "Can the opponent force a capture of my general within k ticks?"
+
+  This is a small AND-OR search (AIMA 4.3): my moves are OR nodes, their
+  replies are AND nodes (must hold against all). Restricted to k <= 6 and to
+  enemy stacks actually within reach, the tree is small.
+
+  The payoff is not the answer itself, it is what it licenses:
+
+      provably safe for k ticks  ->  spend the ENTIRE budget on attack,
+                                     and skip the defensive CSP constraints
+      not provably safe          ->  override whatever the evaluation said
+
+  A proof beats a heuristic opinion. And it is another instance of the same
+  principle - a cheap certainty telling us not to waste expensive computation.
+
+  TEST: how often is the safety check conclusive? If it is almost always
+  "safe", the check is nearly free information. If it is usually inconclusive,
+  the tree is too big and the idea needs a smaller k.
+
+
+--- IDEA 9 -----------------------------------------------------------------
+ADAPTIVE BEAM WIDTH FROM THE SCORE DISTRIBUTION
+---------------------------------------------------------------------------
+
+  Beam search (AIMA 4.1) keeps the best k candidates. Everyone picks k by
+  hand.
+
+  We get all 400 scores in 0.6 ms, so we can pick k from the data: sort the
+  scores, find the largest gap in the top of the distribution, and cut there.
+  Sometimes 3 moves are clearly ahead; sometimes 40 are tied. Fixed k is
+  wrong in both cases.
+
+  Small idea, nearly free, and it makes the beam width a consequence of the
+  position rather than a magic number in the code.
+
+
+================================================================================
+## what I will actually claim in the presentation
+================================================================================
+
+  Not: "these will work."
+  But: "these are the hypotheses; here is the harness that will decide."
+
+  Every idea above has a TEST line, and the harness already exists:
+
+      python server/local_server.py --p0 strategies/new.py \
+             --p1 strategies/old.py --games 200 --headless
+
+  Ranked by (my guess at) payoff per unit of effort:
+
+      1. Idea 1  - metareasoning gate      cheap, big win, tests the core claim
+      2. Idea 5  - derived weights         one afternoon, immediately useful
+      3. Idea 3  - queue as compute        free, the game already supports it
+      4. Idea 2a - baseline pre-roll       moderate, doubles effective budget
+      5. Idea 8  - safety proof            moderate, kills our main failure mode
+      6. Idea 6  - 50-tick cycle           cheap, may be small
+      7. Idea 4  - emergent phases         measurement first, then decide
+      8. Idea 9  - adaptive beam           trivial, small win
+      9. Idea 7  - zone decomposition      highest ceiling, highest risk
+     10. Idea 2b - search-tree repair      only if 2a works
