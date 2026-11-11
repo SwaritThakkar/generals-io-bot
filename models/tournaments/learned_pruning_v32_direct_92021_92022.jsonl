@@ -1,0 +1,4 @@
+{"seed": 92021, "candidate_seat": 0, "winner": 0, "won": true, "ticks": 300, "seconds": 63.77, "errors": []}
+{"seed": 92021, "candidate_seat": 1, "winner": 1, "won": true, "ticks": 300, "seconds": 36.85, "errors": []}
+{"seed": 92022, "candidate_seat": 0, "winner": 1, "won": false, "ticks": 300, "seconds": 41.34, "errors": []}
+{"seed": 92022, "candidate_seat": 1, "winner": 1, "won": true, "ticks": 300, "seconds": 40.51, "errors": []}

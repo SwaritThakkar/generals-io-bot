@@ -1,0 +1,7 @@
+# Deployed from this directory; the rest of the repo is the research code.
+../genmod
+../server
+../tools
+../tests
+node_modules
+.next

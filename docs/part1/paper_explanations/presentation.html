@@ -1,0 +1,934 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body>
+<title>Search Without Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#eef0ef; --surface:#f8faf9; --sunken:#e2e7e6; --line:#c8d1d0; --line-soft:#dbe2e1;
+  --ink:#101618; --ink-2:#42504f; --ink-3:#71807f;
+  --brass:#8f6410; --brass-ink:#75510a; --brass-soft:rgba(143,100,16,.12);
+  --red:#b4342c; --red-soft:rgba(180,52,44,.12);
+  --blue:#2a5f95; --blue-soft:rgba(42,95,149,.12);
+  --code-bg:#e6ebea;
+  --shadow:0 1px 2px rgba(16,22,24,.07), 0 10px 34px rgba(16,22,24,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0b1012; --surface:#121a1d; --sunken:#0e1518; --line:#26333a; --line-soft:#1b262b;
+    --ink:#e4ebec; --ink-2:#9fb2b6; --ink-3:#6d8085;
+    --brass:#d7a244; --brass-ink:#e9bc60; --brass-soft:rgba(215,162,68,.14);
+    --red:#d9584e; --red-soft:rgba(217,88,78,.16);
+    --blue:#5b93cd; --blue-soft:rgba(91,147,205,.16);
+    --code-bg:#0d1417;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 40px rgba(0,0,0,.38);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b1012; --surface:#121a1d; --sunken:#0e1518; --line:#26333a; --line-soft:#1b262b;
+  --ink:#e4ebec; --ink-2:#9fb2b6; --ink-3:#6d8085;
+  --brass:#d7a244; --brass-ink:#e9bc60; --brass-soft:rgba(215,162,68,.14);
+  --red:#d9584e; --red-soft:rgba(217,88,78,.16);
+  --blue:#5b93cd; --blue-soft:rgba(91,147,205,.16);
+  --code-bg:#0d1417;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 40px rgba(0,0,0,.38);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- deck chrome ---------- */
+.deck{position:relative; min-height:100vh}
+.slide{
+  display:none; min-height:100vh; padding:56px 60px 92px;
+  max-width:1180px; margin:0 auto; flex-direction:column; gap:22px;
+}
+.slide.on{display:flex}
+@media (max-width:720px){ .slide{padding:34px 22px 88px} }
+
+.eyebrow{
+  font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:13px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--brass-ink);
+  display:flex; gap:14px; align-items:baseline; flex-wrap:wrap;
+}
+.eyebrow .venue{color:var(--ink-3)}
+h1{
+  font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:clamp(38px,6.4vw,74px);
+  line-height:.98; margin:0; letter-spacing:.004em; text-wrap:balance;
+}
+h2{
+  font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:clamp(28px,4.4vw,46px);
+  line-height:1.03; margin:0; letter-spacing:.006em; text-wrap:balance;
+}
+h3{
+  font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:15px;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); margin:0;
+}
+p{margin:0; max-width:68ch}
+.lede{font-size:clamp(17px,2vw,20px); color:var(--ink-2); max-width:60ch}
+.small{font-size:14.5px; color:var(--ink-2)}
+.tiny{font-size:13px; color:var(--ink-3)}
+strong{font-weight:600; color:var(--ink)}
+em{font-style:italic; color:var(--ink-2)}
+
+/* ---------- pieces ---------- */
+.rows{display:flex; flex-direction:column; gap:16px}
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start}
+@media (max-width:820px){ .cols{grid-template-columns:1fr} }
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:5px;
+  padding:18px 20px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px;
+}
+.card.accent{border-left:3px solid var(--brass)}
+.card.bad{border-left:3px solid var(--red)}
+.card.good{border-left:3px solid var(--blue)}
+
+table{border-collapse:collapse; width:100%; font-size:15px}
+th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:top}
+th{
+  font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:12.5px;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3);
+  border-bottom:1px solid var(--line);
+}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+
+pre{
+  margin:0; background:var(--code-bg); border:1px solid var(--line); border-radius:4px;
+  padding:15px 17px; overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13.5px; line-height:1.62;
+  color:var(--ink-2);
+}
+pre .hl{color:var(--brass-ink); font-weight:600}
+pre .cm{color:var(--ink-3); font-style:italic}
+code{
+  font-family:"IBM Plex Mono",monospace; font-size:.9em;
+  background:var(--sunken); border:1px solid var(--line-soft); border-radius:3px; padding:1px 5px;
+}
+
+.stat{display:flex; flex-direction:column; gap:2px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace; font-weight:600; font-variant-numeric:tabular-nums;
+  font-size:clamp(28px,4.6vw,44px); line-height:1;
+}
+.stat span{
+  font-family:"Barlow Condensed",sans-serif; font-size:12.5px; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.stat.red b{color:var(--red)} .stat.blue b{color:var(--blue)} .stat.brass b{color:var(--brass-ink)}
+.statrow{display:flex; gap:44px; flex-wrap:wrap}
+
+ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:9px; max-width:68ch}
+li::marker{color:var(--brass-ink)}
+
+.pill{
+  display:inline-block; font-family:"Barlow Condensed",sans-serif; font-size:12px;
+  letter-spacing:.13em; text-transform:uppercase; padding:2px 8px; border-radius:3px;
+  border:1px solid var(--line); color:var(--ink-3); background:var(--sunken); white-space:nowrap;
+}
+.pill.b{border-color:var(--brass); color:var(--brass-ink); background:var(--brass-soft)}
+.pill.r{border-color:var(--red); color:var(--red); background:var(--red-soft)}
+
+/* ---------- nav ---------- */
+.bar{
+  position:fixed; left:0; right:0; bottom:0; height:56px; z-index:20;
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(9px); border-top:1px solid var(--line);
+  display:flex; align-items:center; gap:14px; padding:0 20px;
+}
+.bar .title{
+  font-family:"Barlow Condensed",sans-serif; font-size:14px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin-right:auto;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+button{
+  font-family:"IBM Plex Sans",sans-serif; font-size:14px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line); border-radius:4px;
+  height:34px; min-width:38px; padding:0 11px; cursor:pointer;
+  display:grid; place-items:center; transition:border-color .12s, color .12s;
+}
+button:hover{border-color:var(--brass); color:var(--brass-ink)}
+button:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+.count{
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+  font-size:13.5px; color:var(--ink-2); min-width:56px; text-align:center;
+}
+.progress{position:fixed; top:0; left:0; height:2px; background:var(--brass); z-index:21; transition:width .22s ease}
+@media (prefers-reduced-motion:reduce){ .progress{transition:none} }
+
+canvas#board{
+  display:block; width:100%; max-width:430px; height:auto;
+  border:1px solid var(--line); border-radius:4px; background:var(--sunken);
+}
+.hint{font-size:12.5px; color:var(--ink-3); font-family:"IBM Plex Mono",monospace}
+</style>
+
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide">
+  <div class="eyebrow">DAC-203 · Project presentation</div>
+  <h1>Search Without Learning</h1>
+  <p class="lede">Building a competitive Generals.io agent using only the algorithms in
+  Russell &amp; Norvig, chapters 3&ndash;6. No reinforcement learning, no neural networks.</p>
+  <div class="cols" style="margin-top:6px">
+    <div class="rows">
+      <canvas id="board" width="860" height="600" aria-label="Stylised Generals.io board with two territories expanding"></canvas>
+      <div class="hint">23 &times; 23 grid &middot; 20% mountains &middot; 0.5 s per move</div>
+    </div>
+    <div class="rows">
+      <div class="card accent">
+        <h3>The modification</h3>
+        <p class="small">We removed the fog of war. Both players see the whole board.
+        That single change is what makes classical adversarial search <em>sound</em> here.</p>
+      </div>
+      <div class="card">
+        <h3>The claim</h3>
+        <p class="small">The strongest non-learning agent on the public ladder is built
+        entirely from classical optimisation &mdash; and it was the top bot until an RL agent
+        trained on 4&times; H200 GPUs beat it. Search is not a toy in this game.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <div class="eyebrow">The game <span class="venue">Straka, Lis&yacute; &amp; Schmid, 2026</span></div>
+  <h2>What removing fog actually changes</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:34%">Aspect</th><th>With fog (original)</th><th>Without fog (ours)</th></tr></thead>
+    <tbody>
+      <tr><td>What you reason about</td><td>a belief state over hidden armies</td><td><strong>the state <em>is</em> the board</strong></td></tr>
+      <tr><td>Minimax</td><td>unsound &mdash; cannot evaluate what you cannot see</td><td><strong>applies directly</strong></td></tr>
+      <tr><td>Forced wins</td><td>unprovable</td><td>provable in principle</td></tr>
+      <tr><td>Opponent's general</td><td>must be inferred over hundreds of turns</td><td>known from turn 0</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card accent">
+    <h3>What remains hidden</h3>
+    <p><strong>Simultaneity.</strong> Both players commit a move for the same tick without
+    seeing the other's. That is the only imperfect information left &mdash; and it is enough
+    to keep the game non-trivial.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <div class="eyebrow">Constraints</div>
+  <h2>What the algorithm has to survive</h2>
+  <div class="statrow">
+    <div class="stat brass"><b>0.5&thinsp;s</b><span>per move, every move</span></div>
+    <div class="stat"><b>40&ndash;400</b><span>legal moves per side</span></div>
+    <div class="stat"><b>4761</b><span>raw action space, 23&times;23&times;9</span></div>
+    <div class="stat"><b>300&ndash;1000</b><span>ticks per game</span></div>
+  </div>
+  <div class="cols">
+    <div class="card bad">
+      <h3>Why this rules things out</h3>
+      <ul class="small">
+        <li>An algorithm that returns nothing until it finishes is <strong>useless</strong> &mdash; the tick arrives regardless.</li>
+        <li>With <code>b &asymp; 200</code>, even perfect alpha&ndash;beta gives <code>b^(d/2)</code>. Three ply does not fit.</li>
+        <li>Reward is sparse and terminal: win or lose, 500 ticks later.</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h3>Why this rules things in</h3>
+      <ul class="small">
+        <li>Transitions are <strong>deterministic</strong> &mdash; transposition tables and replanning work cleanly.</li>
+        <li>The same map is replayed for hundreds of ticks &mdash; heuristics can be <strong>refined in place</strong>.</li>
+        <li>The board barely changes between ticks &mdash; last tick's work is nearly still valid.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <div class="eyebrow">Where we are <span class="venue">Bot 1 &middot; AIMA &sect;4.1.1 hill climbing</span></div>
+  <h2>The first bot, and exactly how it fails</h2>
+  <p class="lede">Score every reachable board, play the best one. One step of hill climbing.
+  All candidate moves are simulated in a single batched call &mdash; 0.6&nbsp;ms.</p>
+  <div class="cols">
+    <div class="rows">
+      <div class="statrow">
+        <div class="stat red"><b>20%</b><span>win rate vs baseline</span></div>
+        <div class="stat"><b>27&ndash;27</b><span>land at tick 300</span></div>
+      </div>
+      <p class="small">It is <strong>not</strong> being out-expanded. Land is dead even.</p>
+    </div>
+    <div class="card bad">
+      <h3>How the 20 games ended</h3>
+      <div class="scroll"><table>
+        <tbody>
+          <tr><td>our general captured</td><td class="num"><strong style="color:var(--red)">12 / 20</strong></td></tr>
+          <tr><td>their general captured</td><td class="num">3 / 20</td></tr>
+          <tr><td>timeout, we were ahead</td><td class="num">1 / 20</td></tr>
+          <tr><td>timeout, they were ahead</td><td class="num">4 / 20</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <div class="card accent">
+    <h3>Diagnosis</h3>
+    <p>The simulator assumes <strong>the opponent passes</strong>. So no board the bot ever
+    scores contains the enemy's next move. An incoming attack is literally invisible to it.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <div class="eyebrow">Negative result <span class="venue">worth as much as the fix</span></div>
+  <h2>The obvious fix made it worse</h2>
+  <p class="lede">We added a &ldquo;danger&rdquo; term to the evaluation: how close is the enemy's
+  biggest stack to our general, weighted by distance.</p>
+  <div class="statrow">
+    <div class="stat"><b>20%</b><span>before</span></div>
+    <div class="stat red"><b>15%</b><span>after</span></div>
+  </div>
+  <div class="card bad">
+    <h3>Why it failed</h3>
+    <p>The term depends almost entirely on where the <em>enemy</em> is &mdash; which our own
+    move barely changes. So it took nearly the same value for every candidate move.</p>
+    <p style="margin-top:8px"><strong>A term that does not vary between neighbours cannot change an argmax.</strong>
+    It added noise and no signal.</p>
+  </div>
+  <p class="small">This shaped everything that follows: the fix has to be in <strong>what we
+  search</strong>, not in another weighted feature.</p>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <div class="eyebrow">The reading</div>
+  <h2>Six papers, one per chapter of the course</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Paper</th><th>Venue</th><th>AIMA</th><th>What it fixes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ARA*</strong></td><td class="num">NIPS 2003</td><td class="num">ch. 3</td><td>must answer in 500&nbsp;ms, with a quality bound</td></tr>
+      <tr><td><strong>RTAA*</strong></td><td class="num">AAMAS 2006</td><td class="num">&sect;4.5</td><td>act every tick forever on an unsolvable graph</td></tr>
+      <tr><td><strong>Depression avoidance</strong></td><td class="num">AAAI 2012</td><td class="num">&sect;4.5</td><td><span class="pill r">our measured bug</span></td></tr>
+      <tr><td><strong>ProbCut</strong></td><td class="num">Buro</td><td class="num">&sect;5.3</td><td>branching 400 defeats sound pruning</td></tr>
+      <tr><td><strong>Min-conflicts</strong></td><td class="num">AAAI 1990</td><td class="num">&sect;6.4</td><td>which stack defends what, re-decided each tick</td></tr>
+      <tr><td><strong>Metareasoning</strong></td><td class="num">SoCS 2015</td><td class="num">ch. 3&ndash;4</td><td><span class="pill b">our own observation</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="small">Nothing here needs probability theory, game theory, or learning.
+  Total reading: <strong>55 pages</strong>.</p>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <div class="eyebrow">Paper 1 <span class="venue">Likhachev, Gordon &amp; Thrun &middot; NIPS 2003 &middot; AIMA ch. 3</span></div>
+  <h2>ARA* &mdash; anytime A* with a bound</h2>
+  <p class="lede">Weighted A* inflates the heuristic, <code>f = g + &epsilon;&middot;h</code>, and returns a
+  path costing at most <code>&epsilon;&times;</code> optimal. ARA* runs it repeatedly with <strong>decreasing
+  &epsilon;</strong>, reusing the previous run's work.</p>
+  <div class="cols">
+    <div class="rows">
+      <div class="card accent">
+        <h3>The idea it rests on</h3>
+        <p class="small">A state is <strong>locally inconsistent</strong> when its <code>g</code> was just
+        lowered and it has not been re-expanded. The insight:
+        <strong>OPEN is exactly the set of locally inconsistent states.</strong></p>
+        <p class="small">So a search is just <em>propagating inconsistency until none is left</em> &mdash;
+        and to resume with a new &epsilon; you carry those states forward instead of restarting.</p>
+      </div>
+      <div class="card">
+        <h3>The bound you actually get</h3>
+        <pre>&epsilon;' = min( &epsilon; ,  g(goal) / min (g(s)+h(s)) )
+                         s &isin; OPEN &cup; INCONS</pre>
+        <p class="tiny">Often far tighter than &epsilon; itself. You have a near-optimal answer
+        long before &epsilon; reaches 1.</p>
+      </div>
+    </div>
+    <div class="rows">
+      <pre><span class="cm">// each state expanded at most once per pass,</span>
+<span class="cm">// which is what preserves the &epsilon; bound</span>
+ImprovePath():
+  while f(goal) &gt; min f(s) for s in OPEN:
+    s &larr; pop smallest f from OPEN
+    CLOSED &larr; CLOSED &cup; {s}
+    for each successor s':
+      if g(s') &gt; g(s) + c(s,s'):
+        g(s') &larr; g(s) + c(s,s')
+        if s' &notin; CLOSED: push s' to OPEN
+        <span class="hl">else: push s' to INCONS</span>
+
+Main():
+  ImprovePath();  publish
+  while &epsilon;' &gt; 1:
+    decrease &epsilon;
+    <span class="hl">move INCONS &rarr; OPEN</span>   <span class="cm">// reuse</span>
+    re-sort OPEN;  CLOSED &larr; &empty;
+    ImprovePath();  publish</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+  <div class="eyebrow">Paper 1 &rarr; our game</div>
+  <h2>How we use ARA*</h2>
+  <div class="cols">
+    <div class="rows">
+      <div class="card accent">
+        <h3>The tick budget is its exact setting</h3>
+        <pre>deadline &larr; now + 400ms
+best &larr; greedy move        <span class="cm">// always have an answer</span>
+
+for &epsilon; in [3.0, 2.0, 1.5, 1.2, 1.0]:
+    if now &gt; deadline: break
+    best &larr; search(&epsilon;)      <span class="cm">// reusing prior work</span>
+
+return best</pre>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="card">
+        <h3>The opening is a clean A* target</h3>
+        <p class="small">For the first ~34 ticks the players cannot interact &mdash; generals spawn
+        &ge;17 apart. So maximising land at tick 50 is a <strong>single-agent, deterministic,
+        adversary-free</strong> shortest-path problem.</p>
+      </div>
+      <div class="card good">
+        <h3>Why it matters for the report</h3>
+        <p class="small">Most bots can only say &ldquo;it plays well&rdquo;. ARA* lets us say
+        <strong>&ldquo;within 12% of optimal, in 400&nbsp;ms&rdquo;</strong> &mdash; a number, not an impression.</p>
+      </div>
+      <div class="card">
+        <h3>Honest limit</h3>
+        <p class="small">ARA* assumes a static graph. Our board changes every tick, so the reuse
+        is only valid <em>within</em> one deliberation. Across ticks we need RTAA*.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <div class="eyebrow">Paper 2 <span class="venue">Koenig &amp; Likhachev &middot; AAMAS 2006 &middot; AIMA &sect;4.5</span></div>
+  <h2>RTAA* &mdash; the whole contribution is one line</h2>
+  <p class="lede">LRTA* &mdash; the algorithm in the book &mdash; updates roughly one state's heuristic
+  per move. RTAA* runs a <strong>bounded-depth A*</strong>, then updates <strong>every state it
+  expanded</strong> in a single sweep.</p>
+  <div class="cols">
+    <div class="rows">
+      <pre>while s_curr &notin; GOAL:
+    lookahead &larr; <span class="hl">any integer &gt; 0</span>
+    astar()              <span class="cm">// expand &le; lookahead states</span>
+    s&#772; &larr; state in OPEN with smallest f
+
+    for each s &isin; CLOSED:
+        <span class="hl">h[s] &larr; g[s&#772;] + h[s&#772;] &minus; g[s]</span>
+
+    movements &larr; <span class="hl">any integer &gt; 0</span>
+    while s_curr &ne; s&#772; and movements &gt; 0:
+        step along the path to s&#772;</pre>
+      <p class="tiny">Those two <span class="pill b">any integer</span> lines are left undefined by
+      the paper. Choosing them is paper 6.</p>
+    </div>
+    <div class="rows">
+      <div class="card accent">
+        <h3>Why the update is legal</h3>
+        <p class="small">A* expands in <code>f</code>-order, so <code>f[s&#772;]</code> lower-bounds the
+        distance from <code>s_curr</code> to the goal. Any path out of the searched region passes
+        through the frontier, hence</p>
+        <pre>goal_dist(s) &ge; f[s&#772;] &minus; g[s]</pre>
+        <p class="small">The new <code>h</code> stays <strong>admissible</strong>, and the paper proves it
+        is <strong>monotonically non-decreasing</strong> &mdash; it only ever gets more informed.</p>
+      </div>
+      <div class="card">
+        <h3>vs LRTA*</h3>
+        <p class="small">LRTA*'s heuristic ends up <em>more</em> informed for the same lookahead.
+        RTAA* is so much cheaper per move that it still reaches the goal sooner.
+        <strong>That tradeoff is exactly ours &mdash; we are time-bound, not move-bound.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <div class="eyebrow">Paper 2 &rarr; our game</div>
+  <h2>How we use RTAA*</h2>
+  <div class="cols">
+    <div class="card accent">
+      <h3>What <code>h</code> means for us</h3>
+      <p><code>h(tile)</code> = <strong>estimated ticks to own that tile</strong>, initialised as BFS
+      distance from our territory.</p>
+      <p class="small">Every tick, RTAA* raises the value of tiles that turned out harder than they
+      looked. A tile defended by a big enemy stack gets pushed up and <strong>stops attracting our
+      army</strong>.</p>
+    </div>
+    <div class="rows">
+      <div class="card good">
+        <h3>The bot learns the map &mdash; without learning</h3>
+        <p class="small">&ldquo;Adaptive&rdquo; here is a heuristic <em>update rule</em>, not a trained
+        model. Nothing is fitted; <code>h</code> is refined by an admissible inequality. Fully
+        inside the course.</p>
+      </div>
+      <div class="card">
+        <h3>It survives across ticks</h3>
+        <p class="small">ARA*'s reuse dies when the board changes. RTAA*'s <code>h</code> table is
+        <em>designed</em> for a changing environment &mdash; exactly our situation.</p>
+      </div>
+      <div class="card">
+        <h3>Cost to implement</h3>
+        <p class="small">One A* with an expansion cap, one loop over CLOSED. About
+        <strong>60 lines</strong> on top of a pathfinder we already need.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+  <div class="eyebrow">Paper 3 <span class="venue">Hern&aacute;ndez &amp; Baier &middot; AAAI 2012 &middot; AIMA &sect;4.5</span></div>
+  <h2>Depression avoidance &mdash; our bug, with a name</h2>
+  <p class="lede">A <strong>heuristic depression</strong> is a region where <code>h</code> underestimates
+  badly relative to its border. A greedy agent rolls in because everything looks close, then
+  wanders raising values one at a time until the bowl fills. This is called <em>scrubbing</em>.</p>
+  <div class="cols">
+    <div class="rows">
+      <div class="card accent">
+        <h3>Detection is free</h3>
+        <p class="small">Because <code>h</code> starts admissible and updates only ever <em>raise</em>
+        it, a raised value means the original estimate was too optimistic <em>there</em>.</p>
+        <pre>h&#8320;(s) &larr; h(s)          <span class="cm">// remember the original</span>
+&hellip;
+marked(s) &larr; ( h(s) &gt; h&#8320;(s) )</pre>
+        <p class="small">One bit per state. <strong>mark-and-avoid:</strong> prefer unmarked states.
+        <strong>move-to-border:</strong> when already inside, head for the exit.</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="card bad">
+        <h3>What this looks like on our board</h3>
+        <ul class="small">
+          <li>A corridor of neutral tiles that dead-ends into mountains. Every step looks like
+          progress; the whole excursion was wasted.</li>
+          <li>Tiles beside a large enemy stack. They score well, get taken back, and we re-lose
+          them repeatedly &mdash; textbook scrubbing.</li>
+        </ul>
+      </div>
+      <div class="card good">
+        <h3>Why this succeeds where the danger term failed</h3>
+        <p class="small">The danger term was near-constant across candidate moves. A depression
+        mark is attached to <strong>the states we are choosing between</strong>, so it actually
+        discriminates. <strong>~10 lines, and a clean A/B experiment.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+  <div class="eyebrow">Paper 4 <span class="venue">Buro &middot; AIMA &sect;5.3&ndash;5.4</span></div>
+  <h2>ProbCut &mdash; prune what is <em>probably</em> irrelevant</h2>
+  <p class="lede">Alpha&ndash;beta prunes only what it can <strong>prove</strong> is irrelevant.
+  That soundness costs depth &mdash; and depth is what makes a program strong.</p>
+  <div class="cols">
+    <div class="rows">
+      <div class="card accent">
+        <h3>The model</h3>
+        <p class="small">A deep search result <code>v</code> and a shallow one <code>v'</code> are
+        strongly correlated. Model it linearly:</p>
+        <pre>v = a&middot;v' + b + e ,   e ~ N(0, &sigma;&sup2;)</pre>
+        <p class="small"><code>a</code>, <code>b</code>, <code>&sigma;</code> come from ordinary least
+        squares over thousands of positions, offline. Not machine learning &mdash; regression.</p>
+      </div>
+      <div class="card">
+        <h3>The pruning condition</h3>
+        <pre>bound = (  T&middot;&sigma; + &beta; &minus; b ) / a
+if shallow(S, bound&minus;1, bound) &ge; bound
+      return &beta;        <span class="cm">// probably &ge; &beta;</span>
+
+bound = ( &minus;T&middot;&sigma; + &alpha; &minus; b ) / a
+if shallow(S, bound, bound+1) &le; bound
+      return &alpha;        <span class="cm">// probably &le; &alpha;</span></pre>
+        <p class="tiny">Null windows &mdash; the shallow search only answers &ldquo;above or below&rdquo;.
+        <code>T</code> is the risk dial, typically 1&ndash;1.5&sigma;.</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="card good">
+        <h3>Our shallow search is nearly free</h3>
+        <p class="small">The JAX engine already evaluates <strong>every candidate move in one
+        batched call &mdash; 0.6&nbsp;ms</strong>. That is precisely the cheap estimator ProbCut needs,
+        and we get it from work already done.</p>
+      </div>
+      <div class="card">
+        <h3>A self-contained experiment</h3>
+        <p class="small">Generate a few thousand self-play positions, run 1-ply and 3-ply on each,
+        regress one on the other. <strong>That is a real figure for the report.</strong></p>
+      </div>
+      <div class="card bad">
+        <h3>Stated honestly</h3>
+        <p class="small">ProbCut is <strong>unsound</strong> &mdash; it can prune the winning move.
+        Mitigation: never forward-prune within <code>k</code> ply of a general capture, where an
+        error is unrecoverable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide">
+  <div class="eyebrow">Paper 5 <span class="venue">Minton, Johnston, Philips &amp; Laird &middot; AAAI 1990 &middot; AIMA &sect;6.4</span></div>
+  <h2>Min-conflicts &mdash; repair, don't rebuild</h2>
+  <p class="lede">Constructive CSP search starts from nothing and extends. Min-conflicts starts
+  from a <strong>complete but broken</strong> assignment and fixes it &mdash; because a broken
+  assignment is usually almost right, and constructive search throws that information away.</p>
+  <div class="cols">
+    <div class="rows">
+      <pre>min_conflicts(csp, max_steps):
+  assignment &larr; a complete assignment
+  for i in 1..max_steps:
+    if consistent: return assignment
+    var &larr; a variable currently in conflict
+    val &larr; value minimising conflicts
+    assignment[var] &larr; val   <span class="cm">// ties: random</span></pre>
+      <p class="small">A million queens in seconds. Scheduled <strong>Hubble Space Telescope</strong>
+      observations.</p>
+    </div>
+    <div class="rows">
+      <div class="card accent">
+        <h3>Our real per-tick decision</h3>
+        <p class="small">Not &ldquo;what is the single best move&rdquo; but <strong>which of my stacks
+        does what</strong>.</p>
+        <pre>Variables   one per stack
+Domain      {expand R, gather, defend T,
+             take castle C, intercept S}
+Constraints no two stacks on one target
+            general's threat must be covered
+            army must exceed the task</pre>
+      </div>
+      <div class="card good">
+        <h3>Two things it buys us</h3>
+        <p class="small"><strong>Repair is affordable.</strong> Seed with last tick's assignment;
+        only a few variables are newly in conflict.</p>
+        <p class="small"><strong>Unsatisfiability is a signal.</strong> If no assignment covers a
+        threat, that tile is <em>provably</em> lost &mdash; feed it to the evaluation. Using constraint
+        propagation as an evaluation feature is not something we found in the RTS-search literature.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide">
+  <div class="eyebrow">Paper 6 <span class="venue">O'Ceallaigh &amp; Ruml &middot; SoCS 2015 &middot; Russell &amp; Wefald &middot; UAI 1990</span></div>
+  <h2>Metareasoning &mdash; deciding how much to think</h2>
+  <div class="card accent">
+    <p><strong>This started as our own observation:</strong> most ticks in a Generals.io game are
+    obvious. There is nothing to decide, so searching them deeply is budget that should have gone
+    to the handful of ticks that decide the game. That intuition turned out to be an established
+    subfield.</p>
+  </div>
+  <p class="lede">Ordinary search asks <em>which action?</em> Metareasoning asks <em>which
+  computation &mdash; and is any computation worth doing at all?</em> A computation that cannot
+  change your answer has zero value, however deep it is.</p>
+  <div class="cols">
+    <div class="card">
+      <h3>Decision 1 &mdash; the identity action</h3>
+      <p class="small">Should the agent <strong>stay put and think longer</strong> instead of acting?
+      Standard real-time search never asks.</p>
+      <p class="small"><strong>We have a literal one:</strong> action index 0 on every cell is
+      <code>pass</code>. Not an analogy &mdash; the game supplies it.</p>
+    </div>
+    <div class="card">
+      <h3>Decision 2 &mdash; prefix commitment</h3>
+      <p class="small">Given a path to the frontier, <strong>how much do you execute</strong> before
+      re-planning? LRTA* commits to 1 action; others commit to the whole path. Neither adapts.</p>
+      <p class="small"><strong>The game's move queue implements this for us.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="slide">
+  <div class="eyebrow">Paper 6 &rarr; our game</div>
+  <h2>Where our contribution is</h2>
+  <div class="cols">
+    <div class="rows">
+      <div class="card accent">
+        <h3>Detecting an obvious tick, cheaply</h3>
+        <pre>scores &larr; batched_1ply()      <span class="cm">// 0.6 ms, all moves</span>
+
+if best &minus; second &gt; margin:
+    play it now                <span class="cm">// not close &rarr; deep search is waste</span>
+else:
+    spend the remaining ~490 ms</pre>
+        <p class="small">Ten lines. During expansion phases &mdash; long stretches where one move is
+        clearly best &mdash; we currently burn the full budget for nothing.</p>
+      </div>
+      <div class="card">
+        <h3>Commit far when the plan is robust</h3>
+        <p class="small">A stack walking 12 tiles through <em>our own</em> territory: queue the whole
+        path, skip planning for 12 ticks. A stack approaching contact: commit one move, re-plan.</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="card good">
+        <h3>Why this is publishable-shaped</h3>
+        <p class="small">The metareasoning literature targets <strong>single-agent pathfinding</strong>.
+        Applying identity actions and prefix commitment to a <strong>simultaneous-move adversarial</strong>
+        game &mdash; in a domain that supplies a genuine no-op <em>and</em> a genuine move queue &mdash;
+        is not something we found in the literature.</p>
+      </div>
+      <div class="card">
+        <h3>The experiment that makes the report</h3>
+        <p class="small">Fix the <strong>total</strong> compute budget; vary how it is allocated across
+        ticks. If uniform allocation loses to metareasoned allocation at the same total compute,
+        that is a clean result.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide">
+  <div class="eyebrow">The through-line</div>
+  <h2>Four papers, one principle</h2>
+  <p class="lede">We must decide twice a second, for a thousand ticks, on a board that barely
+  changes between them. So the organising principle is:
+  <strong>never throw away what you already computed.</strong></p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:26%">Paper</th><th>What it refuses to discard</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ARA*</strong></td><td>carries <code>INCONS</code> across iterations instead of restarting the search</td></tr>
+      <tr><td><strong>RTAA*</strong></td><td>carries the <code>h</code> table across ticks instead of re-estimating</td></tr>
+      <tr><td><strong>Min-conflicts</strong></td><td>repairs last tick's assignment instead of re-solving</td></tr>
+      <tr><td><strong>Metareasoning</strong></td><td>skips computation that cannot change the answer at all</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card accent">
+    <p>Stated that way, the reading list is not six unrelated techniques. It is one idea applied at
+    four layers: <strong>the search, the heuristic, the assignment, and the budget.</strong></p>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide">
+  <div class="eyebrow">Plan &middot; four weeks</div>
+  <h2>What gets built, and how it is measured</h2>
+  <p class="small">Every change is a 200-game headless match against the previous version on fixed
+  seeds. <strong>Nothing is kept unless it wins.</strong></p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:12%">Week</th><th style="width:22%">Papers</th><th>Build</th><th style="width:22%">Target</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="num"><strong>1</strong></td><td>RTAA*, depression avoidance</td>
+        <td><code>h(tile)</code> table &middot; RTAA* update &middot; depression marking &middot;
+            2-ply check restricted to opponent replies that <em>capture our general</em></td>
+        <td><span class="pill b">&gt;50% vs baseline</span><div class="tiny">from 20%</div></td>
+      </tr>
+      <tr>
+        <td class="num"><strong>2</strong></td><td>ProbCut, asymmetric abstraction</td>
+        <td>collapse their 400 moves to ~4 intents &middot; alpha&ndash;beta + transposition table &middot;
+            ProbCut calibration &middot; iterative deepening</td>
+        <td>3 ply inside 500&nbsp;ms<div class="tiny">+ the regression plot</div></td>
+      </tr>
+      <tr>
+        <td class="num"><strong>3</strong></td><td>Min-conflicts</td>
+        <td>stack&rarr;task CSP &middot; repair seeded from last tick &middot; unsatisfiability as an
+            evaluation term</td>
+        <td>general captures conceded<div class="tiny">measured directly</div></td>
+      </tr>
+      <tr>
+        <td class="num"><strong>4</strong></td><td>Metareasoning</td>
+        <td>identity action &middot; prefix commitment &middot; reallocate the reclaimed budget to
+            close ticks</td>
+        <td>same strength, less compute</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tiny"><strong>If everything slips:</strong> Week 1 alone takes the bot from 20% to a
+  target above 50%. That is a defensible project on its own.</p>
+</section>
+
+<!-- 18 -->
+<section class="slide">
+  <div class="eyebrow">Done looks like</div>
+  <h2>What we will be able to show</h2>
+  <div class="cols">
+    <div class="rows">
+      <div class="card good">
+        <h3>Results</h3>
+        <ul class="small">
+          <li>A bot that beats the scripted baseline decisively, with a win rate over 200 games.</li>
+          <li>Three figures: win rate by version, the ProbCut regression, strength vs compute budget.</li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <h3>Negative results, reported</h3>
+        <p class="small">The danger-term regression &mdash; <strong>20% &rarr; 15%</strong> &mdash; and whatever
+        else fails. These explain <em>why</em> the design is shaped the way it is, and they are the
+        part most projects leave out.</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="card">
+        <h3>Traceability</h3>
+        <p class="small">Every algorithm in the agent maps to a paper <em>and</em> a chapter of the
+        course. Nothing is folklore, nothing is fitted.</p>
+      </div>
+      <div class="card">
+        <h3>Risks we are carrying</h3>
+        <ul class="small">
+          <li>ProbCut calibration may be noisy in a game this unlike chess &mdash; it is optional;
+          abstraction alone should reach 3 ply.</li>
+          <li>The CSP layer could fight the search layer &mdash; keep them separate: CSP
+          <em>proposes</em>, search <em>chooses</em>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="bar">
+  <div class="title" id="slideTitle">Search Without Learning</div>
+  <button id="theme" title="Toggle light / dark" aria-label="Toggle light or dark">&#9681;</button>
+  <button id="prev" aria-label="Previous slide">&larr;</button>
+  <div class="count"><span id="cur">1</span> / <span id="tot">18</span></div>
+  <button id="next" aria-label="Next slide">&rarr;</button>
+</div>
+
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const bar = document.getElementById('progress');
+  const titleEl = document.getElementById('slideTitle');
+  let i = 0;
+
+  tot.textContent = slides.length;
+
+  const show = (n) => {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('on', k === i));
+    cur.textContent = i + 1;
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    const h = slides[i].querySelector('h1, h2');
+    titleEl.textContent = h ? h.textContent : '';
+    window.scrollTo(0, 0);
+    try { location.hash = i ? String(i + 1) : ''; } catch (e) { /* hash unavailable */ }
+  };
+
+  document.getElementById('next').onclick = () => show(i + 1);
+  document.getElementById('prev').onclick = () => show(i - 1);
+
+  addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); show(0); }
+    else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+  });
+
+  // Theme toggle: presentation rooms vary, so make it switchable on the spot.
+  const root = document.documentElement;
+  document.getElementById('theme').onclick = () => {
+    const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+    const now = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+    root.setAttribute('data-theme', now === 'dark' ? 'light' : 'dark');
+    drawBoard();
+  };
+
+  const start = parseInt((location.hash || '').slice(1), 10);
+  show(Number.isFinite(start) && start > 0 ? start - 1 : 0);
+
+  // ---- title-slide board motif -------------------------------------------
+  const cv = document.getElementById('board');
+  const ctx = cv.getContext('2d');
+  const W = 23, H = 16;
+  const rand = (() => { let s = 20260906; return () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff; })();
+  const mtn = [], owner = [], army = [];
+  for (let k = 0; k < W * H; k++) { mtn[k] = rand() < 0.19; owner[k] = -1; army[k] = 0; }
+  const A = 3 * W + 4, B = 12 * W + 18;
+  mtn[A] = mtn[B] = false;
+  owner[A] = 0; owner[B] = 1; army[A] = army[B] = 1;
+
+  function grow(seed, who, steps) {
+    let frontier = [seed];
+    for (let s = 0; s < steps; s++) {
+      const nf = [];
+      for (const c of frontier) {
+        const r = (c / W) | 0, q = c % W;
+        for (const [dr, dq] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+          const rr = r + dr, qq = q + dq;
+          if (rr < 0 || rr >= H || qq < 0 || qq >= W) continue;
+          const n = rr * W + qq;
+          if (mtn[n] || owner[n] !== -1 || rand() < 0.34) continue;
+          owner[n] = who; army[n] = 1 + ((rand() * 4) | 0); nf.push(n);
+        }
+      }
+      frontier = nf;
+      if (!frontier.length) break;
+    }
+  }
+  grow(A, 0, 7); grow(B, 1, 7);
+
+  function drawBoard() {
+    const cs = getComputedStyle(root);
+    const v = (n, f) => (cs.getPropertyValue(n) || '').trim() || f;
+    const C = {
+      p0: v('--red', '#d9584e'), p1: v('--blue', '#5b93cd'),
+      neutral: v('--line-soft', '#1b262b'), mountain: v('--sunken', '#0e1518'),
+      grid: v('--line', '#26333a'), ink: v('--ink', '#e4ebec'),
+    };
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const cell = Math.floor(cv.clientWidth / W) || 18;
+    cv.width = W * cell * dpr; cv.height = H * cell * dpr;
+    cv.style.height = (H * cell) + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W * cell, H * cell);
+    ctx.font = `600 ${Math.max(7, Math.round(cell * 0.42))}px "IBM Plex Mono", monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+    for (let k = 0; k < W * H; k++) {
+      const x = (k % W) * cell, y = ((k / W) | 0) * cell;
+      ctx.fillStyle = mtn[k] ? C.mountain : owner[k] === 0 ? C.p0 : owner[k] === 1 ? C.p1 : C.neutral;
+      ctx.fillRect(x, y, cell, cell);
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
+      if (owner[k] >= 0 && army[k] > 1) {
+        ctx.fillStyle = 'rgba(255,255,255,.92)';
+        ctx.fillText(army[k], x + cell / 2, y + cell / 2 + 1);
+      }
+      if (k === A || k === B) {
+        ctx.fillStyle = 'rgba(255,255,255,.85)';
+        const c = cell / 2, s = cell * 0.26;
+        ctx.beginPath();
+        ctx.moveTo(x + c - s, y + c + s * .5); ctx.lineTo(x + c - s, y + c - s * .35);
+        ctx.lineTo(x + c - s * .4, y + c + s * .1); ctx.lineTo(x + c, y + c - s * .7);
+        ctx.lineTo(x + c + s * .4, y + c + s * .1); ctx.lineTo(x + c + s, y + c - s * .35);
+        ctx.lineTo(x + c + s, y + c + s * .5); ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+  drawBoard();
+  addEventListener('resize', drawBoard);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawBoard);
+  document.fonts && document.fonts.ready.then(drawBoard);
+})();
+</script>
+</body></html>

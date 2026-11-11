@@ -1,0 +1,1405 @@
+================================================================================
+
+              SEARCH-ONLY AI FOR PERFECT-INFORMATION GENERALS.IO
+
+              Everything, explained from the beginning.
+
+================================================================================
+
+HOW TO READ THIS FILE
+
+  This is written so you can read it top to bottom and then explain it to
+  someone else. Nothing assumes you have read the papers. Where there is
+  maths, I derive it rather than state it.
+
+  PART 1   The problem. What game, what we changed, why it matters.
+  PART 2   The five papers. For each: the idea + maths, why it helps us,
+           what exactly to translate, and what to watch out for.
+  PART 3   The insights, pulled out and numbered.
+  PART 4   The architecture. How the pieces fit into one agent.
+  PART 5   What to build, in what order.
+  PART 6   Glossary. Terms you will need to say out loud.
+
+  If you only read one part, read PART 4.
+
+
+================================================================================
+PART 1 - THE PROBLEM
+================================================================================
+
+1.1  THE GAME
+
+  Generals.io is a real-time strategy game on a grid, normally 23x23.
+
+    - Each player starts with one "general" tile.
+    - Every tile you own holds some number of army units.
+    - Each turn ("tick") you pick ONE tile you own and ONE direction, and
+      send either all-but-one unit or exactly half of them to the
+      neighbouring tile.
+    - If the destination is empty you take it. If it is the enemy's, the
+      two stacks cancel one for one and the bigger one survives and owns
+      the tile.
+    - You win by moving an army onto the enemy general and winning that fight.
+
+  Production, which matters more than it looks:
+
+    - Your general and any "castle" you own produce +1 unit every 2 ticks.
+    - EVERY tile you own produces +1 unit every 50 ticks.
+    - Neutral castles sit on the map holding 40-50 units. Beat that garrison
+      and the castle is yours, and it produces for you forever after.
+
+  A tick is 0.5 seconds. Both players move at the same instant.
+
+
+1.2  WHAT WE CHANGED, AND WHY IT IS A BIG DEAL
+
+  In the real game there is fog of war: you only see tiles you own plus the
+  ring around them. We removed it. Both players see the whole board.
+
+  This is not a cosmetic change. It changes which algorithms are legal to use.
+
+    WITH FOG                            WITHOUT FOG (our version)
+    ------------------------------------------------------------------------
+    You reason about a "belief state"   The state IS the board. What you see
+    - a probability distribution over   is what is there. No inference layer.
+    where the enemy might be.
+
+    Minimax is unsound. You cannot      Minimax applies directly. You can
+    evaluate a position you cannot      evaluate any position exactly.
+    see.
+
+    You can never PROVE anything        Forced wins become provable in
+    about the opponent, only guess.     principle.
+
+    Finding the enemy general is a      You know where it is from turn 0.
+    whole research problem.
+
+  There is a striking detail in the paper this project is based on. Their
+  trained neural network's most interpretable component turned out to be a
+  part of the network that maintains a guess about where the enemy general is.
+  That is an expensive learned approximation of something WE CAN JUST READ OFF
+  THE BOARD. Removing fog handed us for free the hardest thing their system
+  had to learn.
+
+  ONE THING IS STILL HIDDEN: simultaneity. You commit your move for tick t
+  without seeing their move for tick t. That is the only imperfect information
+  left, and it is what stops the game being a solved search problem.
+
+
+1.3  THE CONSTRAINTS WE ARE UNDER
+
+  (a) 0.5 seconds per move, forever.
+      This rules out any algorithm that returns nothing until it finishes.
+      The tick arrives whether you are ready or not.
+
+  (b) Branching factor 40 to 400 per side.
+      The raw action space is 23 x 23 x 9 = 4761 (nine actions per tile:
+      pass, or two move types in four directions). Most are illegal at any
+      moment, but 40-400 legal moves is still enormous for game-tree search.
+      For comparison, chess averages about 35.
+
+      Why this hurts: a game tree of depth d with branching b has roughly
+      b^d nodes. Alpha-beta with perfect move ordering gets you down to
+      b^(d/2). With b = 200 that is 200^1.5 = about 2,800 nodes for THREE
+      ply. Sounds fine - until you remember each node needs a full game-state
+      simulation and an evaluation. We measured ~0.6 ms to evaluate ~400
+      moves in one batch, so three ply of naive search blows the budget.
+
+  (c) Games last 300 to 1000 ticks, and the reward is only at the end.
+      You win or you lose. There is no score along the way telling you
+      whether move 137 was good.
+
+  (d) Search and CSP only. AIMA chapters 3-6. No reinforcement learning,
+      no neural networks, no machine learning of any kind.
+
+  On (d): this is less limiting than it sounds. The strongest NON-LEARNING
+  agent on the public Generals.io ladder is called Human.exe. It is built
+  entirely out of classical optimisation - graph algorithms and dynamic
+  programming - and it was the best bot in the world at this game until an
+  RL agent trained on four H200 GPUs beat it. A search agent here is not a
+  toy exercise.
+
+
+1.4  WHERE WE ARE RIGHT NOW
+
+  We have built:
+    - A simulator of the modified game in JAX, fast enough to evaluate every
+      candidate move in a single batched call (0.6 ms).
+    - A pygame viewer to watch games and rewind them.
+    - A first bot.
+
+  THE FIRST BOT (strategies/greedy_eval.py) is one step of hill climbing,
+  which is AIMA section 4.1.1:
+
+      for every legal move:
+          simulate the board after that move
+          score it with an evaluation function
+      play the move with the highest score
+
+  Result: 20% win rate against a simple scripted opponent ("expander").
+
+  We then instrumented 20 games to find out HOW it was losing:
+
+      our general captured .......... 12 / 20     <-- the problem
+      their general captured .........  3 / 20
+      timeout, we were ahead .........  1 / 20
+      timeout, they were ahead .......  4 / 20
+
+  And we checked the land count: 27 to 27 at tick 300. DEAD EVEN.
+
+  So it is not being out-expanded. It expands perfectly well and then gets
+  killed. Why?
+
+  Look at the simulate step. To simulate "the board after my move" you need
+  BOTH players' moves, because they resolve simultaneously. The bot assumes
+  the opponent passes. So every board it ever scores is a board in which the
+  enemy did nothing.
+
+      AN INCOMING ATTACK IS LITERALLY INVISIBLE TO IT.
+
+  It cannot defend, because it has never once imagined being attacked.
+
+
+1.5  THE FIX THAT DIDN'T WORK (read this, it shapes everything after)
+
+  The obvious patch: add a "danger" term to the evaluation function. Find the
+  enemy's biggest stack, measure how close it is to our general, and subtract
+  points when it is close and large.
+
+  We built it. Win rate went from 20% to 15%. IT MADE THE BOT WORSE.
+
+  Here is why, and it is worth understanding properly because it constrains
+  every later design decision.
+
+  The bot chooses by argmax over its candidate moves. For a term to affect
+  an argmax, it has to VARY between the candidates. The danger term depends
+  almost entirely on where the ENEMY's stack is - and our own move does not
+  move the enemy. So the term took nearly the same value for all 400
+  candidates. It contributed no signal, only noise from the few cases where
+  it did vary slightly.
+
+      A TERM THAT DOES NOT VARY BETWEEN NEIGHBOURS CANNOT CHANGE AN ARGMAX.
+
+  This is why we cannot fix the bot by adding more features to the evaluation
+  function. The fix has to change WHAT WE SEARCH, not how we score.
+
+  (Report this failure. It is more convincing than the successes, because it
+  explains why the architecture is shaped the way it is.)
+
+
+================================================================================
+PART 2 - THE PAPERS
+================================================================================
+
+Five papers, one per topic in your course. For each one:
+  (1) the idea and the maths
+  (2) why it is useful here
+  (3) what part you translate
+  (4) considerations - what to watch out for
+
+
+--------------------------------------------------------------------------------
+PAPER 1 - ARA*: ANYTIME A* WITH PROVABLE BOUNDS ON SUB-OPTIMALITY
+Likhachev, Gordon & Thrun. NIPS 2003. 8 pages. AIMA chapter 3.
+--------------------------------------------------------------------------------
+
+(1) THE IDEA AND THE MATHS
+
+  Start from A*, which you know:
+
+      f(n) = g(n) + h(n)
+
+      g(n) = actual cost from the start to n
+      h(n) = estimated cost from n to the goal
+
+  A* always expands the node with the smallest f. If h never OVERESTIMATES
+  the true remaining cost (this is called being "admissible"), A* is
+  guaranteed to find the optimal path.
+
+  The problem for us: A* gives you nothing until it finishes. If your
+  deadline hits first, you have no answer at all.
+
+  WEIGHTED A* is the classic fix. Multiply h by a number eps > 1:
+
+      f(n) = g(n) + eps * h(n)
+
+  Inflating h makes the search greedier - it rushes toward the goal instead
+  of carefully exploring alternatives. It finds a path much faster. And here
+  is the important part, which is a theorem and not a hope:
+
+      the path it finds costs at most  eps x (the optimal cost)
+
+  So eps = 2 means "at most twice optimal, but found much faster". You have
+  a dial between speed and quality, with a guarantee at every setting.
+
+  ARA*'s contribution: don't pick one eps. Run weighted A* repeatedly with
+  eps decreasing - say 3.0, then 2.0, then 1.5, then 1.2, then 1.0 - and
+  make each run REUSE the previous run's work instead of starting over.
+
+  You get a rough answer almost immediately, it gets better the longer you
+  let it run, and at every moment you know exactly how far from optimal you
+  are. Stop whenever you like.
+
+  THE MECHANISM THAT MAKES REUSE POSSIBLE
+
+  This is the clever part. The paper introduces "local inconsistency".
+
+  A state s is LOCALLY INCONSISTENT when its g-value has just been lowered
+  and it has not been expanded since.
+
+  Think about what that means. If g(s) drops, then s's successors might now
+  be reachable more cheaply through s, but they don't know that yet. There
+  is a mismatch - an inconsistency - between s and its children. Expanding s
+  fixes it, by pushing the improvement down to the children (which then
+  become inconsistent themselves).
+
+  The paper's observation:
+
+      OPEN IS EXACTLY THE SET OF LOCALLY INCONSISTENT STATES.
+
+  Every time a g-value is lowered the state goes into OPEN; every time a
+  state is expanded it comes out. So a search is nothing more than
+  "propagate inconsistency until there is none left".
+
+  Once you see it that way, resuming is obvious: to search again with a new
+  eps, you do not restart, you just carry the still-inconsistent states
+  forward.
+
+  THE COMPLICATION, AND WHY THERE IS A THIRD LIST
+
+  With eps > 1 the heuristic can be inconsistent, which means A* might want
+  to expand the same state many times. That is expensive. ARA* forbids
+  re-expanding a state within one pass - this is what keeps each pass cheap
+  and keeps the eps guarantee.
+
+  But a state whose g improves AFTER it was already expanded is genuinely
+  inconsistent, and forgetting it would be wrong. So it goes into a third
+  list called INCONS. At the end of the pass, INCONS gets poured back into
+  OPEN for the next round.
+
+      OPEN    - inconsistent states we are allowed to expand this pass
+      CLOSED  - already expanded this pass, do not touch again
+      INCONS  - inconsistent, but already expanded; deal with them next pass
+
+  THE PSEUDOCODE
+
+      fvalue(s) = g(s) + eps * h(s)
+
+      ImprovePath():
+        while fvalue(goal) > min fvalue(s) over s in OPEN:
+            s = pop the smallest fvalue from OPEN
+            CLOSED = CLOSED + {s}
+            for each successor s' of s:
+                if g(s') > g(s) + cost(s, s'):
+                    g(s') = g(s) + cost(s, s')
+                    if s' not in CLOSED:  put s' in OPEN
+                    else:                 put s' in INCONS      <-- the trick
+
+      Main():
+        g(start) = 0;  everything else infinity
+        put start in OPEN
+        ImprovePath()
+        publish the solution
+        while the bound is still worse than 1:
+            decrease eps
+            move everything from INCONS into OPEN               <-- the reuse
+            re-sort OPEN with the new eps
+            CLOSED = empty
+            ImprovePath()
+            publish the improved solution
+
+  THE BOUND YOU ACTUALLY GET
+
+  Notice the published bound is not eps. It is:
+
+                                  g(goal)
+      eps' = min( eps ,  ------------------------------ )
+                          min over s in OPEN + INCONS
+                             of  ( g(s) + h(s) )
+
+  The denominator is a lower bound on the true optimal cost - it is the
+  cheapest anything still under consideration could possibly be. So this
+  ratio is often much tighter than eps itself. In practice you frequently
+  have a near-optimal answer long before eps has come down to 1.
+
+
+(2) WHY IT IS USEFUL HERE
+
+  Because "0.5 seconds, then answer, no excuses" is precisely the situation
+  ARA* was designed for. Any algorithm we use has to be interruptible. ARA*
+  is interruptible AND tells you how good the answer you are holding is.
+
+  Second use, quite separate: THE OPENING. For roughly the first 34 ticks
+  the two players cannot interact at all - generals start at least 17 steps
+  apart and a stack needs time to grow before it can travel. So "how much
+  land can I own by tick 50" is a single-player, deterministic,
+  no-opponent shortest-path problem. That is a pure chapter-3 exercise, and
+  it is worth real strength: openings decide a lot of Generals.io games.
+
+  We can even bound it. A lone general holds 1 + floor(T/2) army at tick T
+  (it makes one unit every two ticks). Every tile you capture parks exactly
+  one unit on it permanently, and each capture costs one tick. So:
+
+      land at tick 50  <=  1 + floor(50/2)  =  26
+
+  Good human openings reach 23-25. So the bound is tight, which is exactly
+  what makes branch-and-bound search efficient here.
+
+
+(3) WHAT YOU TRANSLATE
+
+  The anytime loop, directly:
+
+      deadline = now + 400ms
+      best = the greedy move            # so we ALWAYS have an answer
+
+      for eps in [3.0, 2.0, 1.5, 1.2, 1.0]:
+          if now > deadline: break
+          best = search(eps)            # reusing the previous iteration
+      return best
+
+  And the reporting habit. Most projects can only claim "it plays well".
+  ARA* lets you write "within 12% of optimal, in 400 ms". That is a number.
+
+
+(4) CONSIDERATIONS
+
+  * ARA* assumes the graph does not change and the goal is fixed. Our board
+    changes every single tick. So the reuse is only valid WITHIN one tick's
+    thinking. You cannot carry an ARA* search across ticks. For that you
+    need paper 2.
+
+  * The eps schedule matters and is worth tuning. Too coarse and you waste
+    a whole pass; too fine and you never finish a pass.
+
+  * "Anytime" only helps if the first answer is decent. Seed it with the
+    greedy move so the worst case is "we did no worse than the current bot".
+
+
+--------------------------------------------------------------------------------
+PAPER 2 - REAL-TIME ADAPTIVE A* (RTAA*)
+Koenig & Likhachev. AAMAS 2006. 8 pages. AIMA section 4.5.
+--------------------------------------------------------------------------------
+
+(1) THE IDEA AND THE MATHS
+
+  The setting: an agent that must ACT NOW, cannot search all the way to the
+  goal, and will be back in a similar situation next step. Your book covers
+  this in section 4.5 under "online search agents", and the algorithm it
+  teaches is LRTA* - Learning Real-Time A*.
+
+  LRTA* works like this. You keep a table h(s) of estimates. Each step:
+
+      1. look one step ahead (or a few)
+      2. move toward the most promising neighbour
+      3. UPDATE the estimate for the state you were in:
+
+             h(s) = max( h(s),  min over actions a of [ cost(s,a,s') + h(s') ] )
+
+  That update is the whole idea. If all your neighbours turn out to be
+  further from the goal than you thought, then you were too optimistic about
+  where you are standing, so raise h(s). Over repeated visits the table
+  becomes more and more accurate, and the agent stops making the same
+  mistake twice. Note this is NOT machine learning - it is an inequality
+  being enforced, with no model being fitted.
+
+  The weakness: LRTA* updates essentially one state per move. On a big map
+  that is slow going - the agent has to physically walk around correcting
+  one number at a time.
+
+  RTAA*'S CONTRIBUTION IS ONE LINE.
+
+  Instead of updating one state, run a bounded A* search, then update EVERY
+  STATE THAT SEARCH EXPANDED, all at once, with one subtraction each.
+
+      while not at goal:
+          lookahead = any integer > 0        # how much to think
+          run A*, expanding at most `lookahead` states
+          s_bar = the state left in OPEN with the smallest f
+                  (i.e. the frontier state A* was about to expand next)
+
+          for every state s that was expanded (i.e. in CLOSED):
+              h(s) = g(s_bar) + h(s_bar) - g(s)          <-- THE WHOLE PAPER
+
+          movements = any integer > 0        # how much to commit to
+          take that many steps along the path toward s_bar
+
+  WHY THAT UPDATE IS LEGAL
+
+  This is worth being able to explain, because it is the bit that makes the
+  algorithm sound.
+
+  A* expands states in order of increasing f. So when it stops, the smallest
+  f left in OPEN - call that state s_bar - gives you f(s_bar) = g(s_bar) +
+  h(s_bar), and this is a LOWER BOUND on the true distance from where you
+  are standing to the goal. (Nothing cheaper than that is still available.)
+
+  Now take any state s that the search expanded. To get from s to the goal
+  you must leave the searched region, and to leave it you must pass through
+  the frontier. So:
+
+      true distance from s to goal   >=   f(s_bar) - g(s)
+
+  ...and the right-hand side is exactly what we assign to h(s). Since it is
+  a lower bound, the new h is still admissible - it never overestimates -
+  so everything A* guarantees still holds.
+
+  The paper also proves the update is MONOTONICALLY NON-DECREASING: h only
+  ever goes up. Which means the table only ever gets more informed. It
+  cannot get worse.
+
+  RTAA* VERSUS LRTA*
+
+      LRTA*:  more expensive update, produces a better-informed h
+      RTAA*:  one subtraction per state, produces a slightly worse h
+
+  The paper is honest that LRTA*'s heuristic ends up MORE informed for the
+  same lookahead. But RTAA* is so much cheaper per move that it reaches the
+  goal sooner in wall-clock terms.
+
+  That trade-off is exactly ours. We are limited by TIME, not by number of
+  moves. So we want the cheap update.
+
+
+(2) WHY IT IS USEFUL HERE
+
+  This is the shape of our entire tick loop. "Think as much as 500 ms
+  allows, commit to something, keep what you learned, repeat forever."
+  That is RTAA* written out in English.
+
+  And unlike ARA*, RTAA* is DESIGNED for an environment that changes
+  underneath you. The h table is meant to survive between decisions. That is
+  the thing we actually need and cannot get from paper 1.
+
+
+(3) WHAT YOU TRANSLATE
+
+  Define the table:
+
+      h(tile) = estimated number of ticks until I own this tile
+
+  Initialise it as BFS distance from our current territory - a tile two
+  steps from our border starts at h = 2.
+
+  Then every tick, RTAA* raises the values of tiles that turned out to be
+  harder than they looked. A tile guarded by a big enemy stack gets its h
+  pushed up, and STOPS ATTRACTING OUR ARMY. Over a few hundred ticks the
+  table becomes a map of "where it is actually worth going on THIS board",
+  which is different for every game.
+
+  Implementation is small: one A* with a cap on expansions, one loop over
+  CLOSED. Maybe 60 lines on top of a pathfinder we need anyway.
+
+
+(4) CONSIDERATIONS
+
+  * The two lines that say "any integer > 0" are LEFT UNDEFINED BY THE
+    PAPER. It genuinely does not tell you how much to think or how far to
+    commit. Choosing those two numbers well is the subject of paper 5. Do
+    not skip past this - it is where our original contribution lives.
+
+  * h must start admissible or the guarantees evaporate. BFS distance
+    ignoring enemies is safe, because the true time to own a tile is always
+    at least the distance to walk there.
+
+  * Careful about what "goal" means. In pathfinding there is one goal tile.
+    In our game the goal is a whole situation ("own more land", "kill the
+    general"). Simplest workable version: run the h table for a concrete
+    sub-goal like "reach the enemy general", and keep a separate one for
+    "reach the nearest unowned tile".
+
+  * When territory flips, some h values become stale. Because updates only
+    ever raise h, a tile that becomes EASIER will keep an over-large h until
+    something resets it. Consider resetting h for tiles whose ownership
+    changed.
+
+
+--------------------------------------------------------------------------------
+PAPER 3 - DEPRESSION AVOIDANCE IN REAL-TIME HEURISTIC SEARCH
+Hernandez & Baier. AAAI 2012. 6 pages. AIMA section 4.5.
+--------------------------------------------------------------------------------
+
+(1) THE IDEA AND THE MATHS
+
+  This paper is about the specific way real-time search FAILS, and a cheap
+  fix. There is barely any maths, which is a good sign - it is an
+  observation, not a construction.
+
+  A HEURISTIC DEPRESSION is a connected region of states where h badly
+  underestimates the true cost, compared to the h values on the region's
+  border.
+
+  Picture the heuristic as a landscape where low means "close to the goal".
+  A depression is a bowl. A greedy agent rolls in, because from outside
+  everything in the bowl looks close to the goal. Then it is stuck: every
+  move it makes raises one state's h a little, so it wanders around the bowl
+  raising values one at a time until the whole bowl has been filled in and
+  it can finally climb out.
+
+  This wastes an enormous number of moves. The literature calls it
+  "scrubbing" - the agent scrubs back and forth over the same region.
+
+  THE FIX, IN ONE SENTENCE:
+
+      Prefer to move to states that are not known to be inside a depression.
+
+  DETECTION IS FREE
+
+  You do not need a detector. Here is the observation that makes it cheap:
+
+      If a state's h has ever been UPDATED, that state is inside a depression.
+
+  Why: h starts out admissible (never overestimating), and updates only ever
+  RAISE it (proved in the RTAA* paper). So if we ever had to raise h(s), the
+  original estimate at s was too optimistic. That is the definition of a
+  depression. One extra bit per state:
+
+      h0(s) = h(s)                    # remember the original value, once
+      ...
+      marked(s) = ( h(s) > h0(s) )    # true means "we were wrong here before"
+
+  TWO WAYS TO USE THE MARK
+
+  MARK-AND-AVOID. When choosing which frontier state to head for, prefer
+  unmarked ones. Only fall back to marked ones if everything is marked.
+  Implementation: sort the frontier by (marked, f) instead of by f alone.
+
+  MOVE-TO-BORDER. Softer. If you are already deep inside a depression and
+  every neighbour is marked, head for the states that look closest to the
+  EDGE of the depression - aim for the exit rather than refusing to be in
+  the bowl at all.
+
+
+(2) WHY IT IS USEFUL HERE
+
+  Because we already hit this, and we have the numbers.
+
+  Our greedy bot picks the move whose resulting board scores highest. It
+  wins 20%. It loses by having its general captured 12 times in 20, while
+  its land count stays even. It walks into positions that look good one move
+  out and are fatal two moves out. THAT IS A HEURISTIC DEPRESSION. This
+  paper is the named, published treatment of the failure we measured.
+
+  What a depression looks like on OUR board, concretely:
+
+    - A corridor of neutral tiles that dead-ends against mountains. Every
+      single step in looks like progress (land goes up by one). The whole
+      excursion was wasted, and you find out only at the end.
+
+    - Tiles adjacent to a large enemy stack. They score well, we take them,
+      the enemy takes them straight back, we take them again. We re-lose the
+      same tiles repeatedly. This is textbook scrubbing.
+
+
+(3) WHAT YOU TRANSLATE
+
+  Once the RTAA* h table exists, this is roughly ten lines:
+
+      when you raise h(tile):     marked[tile] = true
+      when choosing where to go:  prefer tiles with marked == false
+
+  And it is a clean experiment: run 200 games with marking on and off,
+  report the difference. That is a real result with a real number.
+
+
+(4) CONSIDERATIONS
+
+  * This ONLY works if you have already built the h table (paper 2). It is
+    not a standalone technique - it piggybacks on the update mechanism.
+
+  * Marks should probably decay or reset. Our board changes; a tile that was
+    a trap 200 ticks ago may be free now because the enemy stack moved away.
+    A permanent mark would slowly make the whole board look like a trap.
+    Simple fix: clear the mark when the tile's neighbourhood ownership
+    changes.
+
+  * IMPORTANT CONTRAST WITH OUR FAILED DANGER TERM. Both are "avoid bad
+    places". Why should this one work when that one made things worse?
+
+    Because the danger term was nearly the same for every candidate move, so
+    it could not discriminate. A depression mark is attached to THE STATES
+    WE ARE CHOOSING BETWEEN - move A leads to a marked tile, move B does
+    not - so it varies exactly where it needs to. That is the difference,
+    and it is worth saying out loud in the report.
+
+
+--------------------------------------------------------------------------------
+PAPER 4 - PROBCUT: FORWARD PRUNING IN ALPHA-BETA
+Buro. AIMA sections 5.3-5.4.
+--------------------------------------------------------------------------------
+
+(1) THE IDEA AND THE MATHS
+
+  Background you need first. In a game tree, alpha-beta pruning maintains a
+  window (alpha, beta):
+
+      alpha = the best score I am already guaranteed
+      beta  = the best score the opponent is already guaranteed
+
+  If while searching a subtree you discover its value must fall outside that
+  window, you can stop searching it - it can never affect the final choice.
+  This is SOUND pruning: alpha-beta returns exactly what full minimax would.
+
+  Soundness is expensive. It only prunes when it can PROVE irrelevance, and
+  proof requires actually searching. The result is that depth stays low, and
+  depth is what actually makes a game program strong.
+
+  PROBCUT'S IDEA: prune when a subtree is PROBABLY irrelevant.
+
+  Before searching a subtree to full depth d, do a cheap SHALLOW search to
+  depth d' (much smaller). If the shallow result comes back far outside the
+  window, conclude that the deep search would almost certainly also land
+  outside, and skip it entirely.
+
+  THE STATISTICAL MODEL
+
+  Let v be the value a depth-d search would return, and v' the value a
+  depth-d' search returns. These are strongly correlated - a position that
+  looks winning after 2 ply usually looks winning after 6. Model it as a
+  straight line with noise:
+
+      v  =  a * v'  +  b  +  e,        where e is Gaussian with std dev sigma
+
+  You get a, b and sigma by ORDINARY LINEAR REGRESSION over thousands of
+  positions, done once, offline. This is least squares, not machine learning
+  in the sense your course excludes - it is fitting a line to a scatter plot.
+
+  THE PRUNING CONDITION, DERIVED
+
+  We want to prune when the probability that v >= beta is high. Substitute
+  the model:
+
+      v >= beta
+      a*v' + b + e >= beta
+      v' >= (beta - b - e) / a
+
+  We do not know e, but we know its standard deviation. Require the shallow
+  value to clear the bar by T standard deviations, where T is a threshold we
+  choose:
+
+      PRUNE (fail high) when   v'  >=  ( T*sigma + beta - b ) / a
+
+  And symmetrically at the bottom of the window:
+
+      PRUNE (fail low)  when   v'  <=  ( -T*sigma + alpha - b ) / a
+
+  Straight from the paper's own code:
+
+      bound = round(( T*sigma + beta - b) / a);
+      if (shallow_search(S, bound-1, bound) >= bound)  return beta;
+
+      bound = round((-T*sigma + alpha - b) / a);
+      if (shallow_search(S, bound, bound+1) <= bound)  return alpha;
+
+  Note the shallow searches use a NULL WINDOW (bound-1, bound). They only
+  need to answer "above or below?", never compute an exact value, which
+  makes them very cheap.
+
+  T IS THE RISK DIAL
+
+      large T  ->  prune only when very confident  ->  safe, shallow, slow
+      small T  ->  prune aggressively              ->  much deeper, sometimes
+                                                       throws away the best move
+
+  Typical values are around 1 to 1.5 standard deviations.
+
+
+(2) WHY IT IS USEFUL HERE
+
+  Our branching factor makes sound pruning insufficient. Perfect alpha-beta
+  ordering gives about b^(d/2); with b around 200, three ply is already at
+  the edge of the budget. Forward pruning is not a refinement for us - it is
+  the only realistic route to useful depth.
+
+  And here is a piece of luck: OUR SHALLOW SEARCH IS ALREADY BUILT AND
+  NEARLY FREE. The JAX simulator evaluates every candidate move in ONE
+  batched call, measured at 0.6 ms. That is exactly the cheap estimator
+  ProbCut needs, and we get it from work already done for the greedy bot.
+
+  Fitting a, b and sigma is a nice self-contained experiment: generate a few
+  thousand positions from self-play, run a 1-ply and a 3-ply search on each,
+  plot one against the other, fit a line. That produces a REAL FIGURE for
+  the report - a scatter plot with a fitted line and a sigma band.
+
+
+(3) WHAT YOU TRANSLATE
+
+  Two things:
+
+  (a) The pruning condition itself, inside whatever alpha-beta you write.
+
+  (b) More generally, the PRINCIPLE: a cheap estimate can decide whether an
+      expensive computation is worth doing. Hold onto that sentence - it is
+      the same idea as paper 5, applied at a different level.
+
+
+(4) CONSIDERATIONS
+
+  * PROBCUT IS UNSOUND. It can and will prune the winning move sometimes.
+    You must say this in the report; do not pretend otherwise. The standard
+    mitigation: never forward-prune within k ply of a terminal position (a
+    general capture), because that is exactly where a mistake cannot be
+    recovered from.
+
+  * The regression is only valid for the (d', d) pair you fitted it on. If
+    you fit 1-ply against 3-ply, you cannot use those numbers for 2-ply
+    against 6-ply. Fit each pair you intend to use.
+
+  * Our evaluation function is currently weak. ProbCut's model assumes the
+    shallow and deep searches are correlated - if your evaluation is noise,
+    they will not be, sigma will be huge, and no pruning will ever fire.
+    So this paper depends on having a decent evaluation first. Do not
+    attempt it in week 1.
+
+
+--------------------------------------------------------------------------------
+PAPER 5 - MIN-CONFLICTS: HEURISTIC REPAIR FOR CSPs
+Minton, Johnston, Philips & Laird. AAAI 1990. 8 pages. AIMA section 6.4.
+--------------------------------------------------------------------------------
+
+(1) THE IDEA AND THE MATHS
+
+  A constraint satisfaction problem is: variables, each with a domain of
+  possible values, and constraints saying which combinations are allowed.
+
+  The standard approach in your book (section 6.3) is CONSTRUCTIVE: start
+  with nothing assigned, assign one variable at a time, and backtrack when
+  you paint yourself into a corner.
+
+  Min-conflicts is REPAIR-BASED, which is the opposite:
+
+      Start with a COMPLETE assignment that is probably broken.
+      Repeatedly pick a variable that is currently violating a constraint,
+      and change it to the value that violates the FEWEST constraints.
+      Break ties randomly.
+
+  The heuristic, in the paper's own words:
+
+      "Given a variable in conflict, choose the value that minimises the
+       number of other variables that will need to be repaired."
+
+  Pseudocode:
+
+      min_conflicts(problem, max_steps):
+          assignment = some complete assignment
+          repeat max_steps times:
+              if assignment satisfies everything: return it
+              var = a variable currently in conflict (pick randomly)
+              val = the value for var minimising the number of conflicts
+              assignment[var] = val        # ties broken randomly
+          return failure
+
+  WHY IT WORKS SO WELL
+
+  The intuition the paper gives: a broken complete assignment is usually
+  ALMOST RIGHT. It contains a huge amount of information - it is a solution
+  to a slightly different problem. Constructive search throws all of that
+  away by starting from an empty assignment. Repair keeps it.
+
+  The results are famous. It solves the million-queens problem in seconds.
+  It was the scheduler used for HUBBLE SPACE TELESCOPE observations, where a
+  week of telescope time had to be planned under heavy constraints.
+
+  It is NOT complete - it can cycle forever and it cannot prove that a
+  problem has no solution. The random tie-breaking is what keeps it out of
+  loops in practice.
+
+  A SECOND USE THAT IS EASY TO MISS
+
+  The paper also presents min-conflicts as a VALUE-ORDERING HEURISTIC inside
+  ordinary backtracking search ("informed backtracking"): use the current
+  broken assignment as a hint about which value to try first. So it is not
+  only a local search method - it is a way of injecting a starting guess
+  into a systematic search.
+
+
+(2) WHY IT IS USEFUL HERE
+
+  Because our real per-tick decision is not "what is the single best move".
+  It is "WHICH OF MY STACKS DOES WHAT". That is an assignment problem:
+
+      Variables    one per army stack we control
+      Domains      { expand toward region R, gather to the general,
+                     defend tile T, take castle C, intercept enemy stack S }
+      Constraints  - two stacks should not be sent to the same target
+                   - if the general is threatened, SOME stack must be able
+                     to reach it in time
+                   - a stack's army must exceed what its task requires
+
+  And crucially: THIS PROBLEM BARELY CHANGES BETWEEN TICKS. One stack has
+  arrived somewhere, one new threat has appeared, everything else is
+  identical. Solving it from scratch twice a second is absurd. Repairing
+  last tick's answer is exactly right, and that is what min-conflicts does.
+
+  THE PART I THINK IS GENUINELY NOVEL: unsatisfiability is a SIGNAL, not
+  just a failure. If constraint propagation wipes out a variable's domain -
+  no stack can possibly reach that threatened tile in time - then we are
+  PROVABLY losing that tile. That is a much stronger statement than an
+  evaluation function's opinion, and it should feed straight into the
+  evaluation as a term. I have not seen constraint propagation used as an
+  evaluation feature in the RTS search literature.
+
+
+(3) WHAT YOU TRANSLATE
+
+  The repair loop, seeded from last tick's assignment. And the constraint
+  "the general's threat must be covered", which addresses our measured
+  failure DECLARATIVELY - by stating a requirement - rather than by adding
+  another weighted term to an evaluation function, which we tried and which
+  made things worse.
+
+
+(4) CONSIDERATIONS
+
+  * Do not let the CSP layer and the search layer fight each other. Keep the
+    division clean: THE CSP PROPOSES a small set of coherent candidate
+    plans; THE SEARCH CHOOSES between them. If both try to pick the final
+    move you will get incoherent behaviour.
+
+  * Min-conflicts is incomplete. It can fail to find an assignment that
+    exists. With a 0.5 s budget, cap max_steps and accept the best
+    assignment found. Do not treat failure as proof of impossibility unless
+    you ran full constraint propagation (AC-3) first.
+
+  * Defining the domains well is most of the work. "Expand toward region R"
+    needs regions, which needs the board segmented into blobs. That is a
+    piece of engineering, not a paper idea, and it will take longer than you
+    expect.
+
+
+--------------------------------------------------------------------------------
+PAPER 6 - METAREASONING: DECIDING HOW MUCH TO THINK
+O'Ceallaigh & Ruml, SoCS 2015 (9pp)
+Cserna, Ruml & Frank, ICAPS 2017 (5pp)
+Russell & Wefald, UAI 1990 (7pp) - the same Russell as your textbook
+--------------------------------------------------------------------------------
+
+  NOTE: this direction came from YOUR observation - that most ticks in a
+  Generals.io game are obvious, so spending the full budget on them is
+  waste. That intuition turned out to be an established subfield with
+  thirty years of literature. Say that in the presentation; it is a good
+  thing to have noticed independently.
+
+
+(1) THE IDEA AND THE MATHS
+
+  Ordinary search asks: "which ACTION should I take?"
+  Metareasoning asks the level-up question: "which COMPUTATION should I
+  perform - and is any computation worth doing at all right now?"
+
+  Russell & Wefald gave the framework in 1990. Treat each possible node
+  expansion as an action in its own right, with:
+
+      a COST    - the time it takes
+      a BENEFIT - the probability that doing it CHANGES WHICH MOVE YOU
+                  FINALLY PLAY, times how much better that move is
+
+  Then expand the node with the highest "value of computation", and STOP
+  SEARCHING when the expected benefit of another expansion falls below its
+  cost.
+
+  The key sentence, which is the whole idea:
+
+      A COMPUTATION THAT CANNOT CHANGE YOUR ANSWER HAS ZERO VALUE,
+      NO MATTER HOW DEEP IT IS.
+
+  Their algorithm applying this to game trees is called DTA* - Decision
+  Theoretic A*. The unit of computation is a single node expansion, which
+  is why the paper is called "fine-grained".
+
+  THE 2015 PAPER: TWO CONCRETE DECISIONS
+
+  O'Ceallaigh & Ruml apply this to real-time search and identify two
+  decision points. And here is the thing that makes this fit our project so
+  neatly: THEY ARE EXACTLY THE TWO LINES RTAA* LEFT UNDEFINED.
+
+  Remember from paper 2:
+
+      lookahead  = any integer > 0        <-- decision 1: how much to think
+      movements  = any integer > 0        <-- decision 2: how much to commit
+
+  DECISION 1 - THE IDENTITY ACTION
+
+  An "identity action" is an action that keeps you in the same state while
+  you think longer. The question: should I act now, or stand still and
+  deliberate?
+
+  Standard real-time search never asks this. It assumes acting is always
+  right. But if your current best move is only marginally better than the
+  second best, another round of lookahead might reveal something much
+  better, and standing still only costs time.
+
+  They measure everything in GAT - Goal Achievement Time - which is planning
+  time PLUS execution time. Under GAT, thinking is not free, but it is often
+  cheaper than committing to a bad move and having to undo it.
+
+  DECISION 2 - PREFIX COMMITMENT
+
+  After lookahead you have a path to the best frontier state. How much of
+  that path do you actually execute before re-planning?
+
+  The existing algorithms are both extremes, and neither adapts:
+
+      LRTA* (Korf 1990)      commits to exactly 1 action
+      Later variants (2013)  commit to the ENTIRE path to the frontier
+
+  One action means re-planning constantly, which is expensive. The whole
+  path means acting on stale information, which is dangerous. The paper
+  chooses dynamically: commit further when the plan looks robust, commit
+  less when it looks fragile.
+
+
+(2) WHY IT IS USEFUL HERE
+
+  Three reasons, and the second one is unusual.
+
+  FIRST: it directly answers your observation. Most ticks are obvious.
+  During a long expansion phase, one move is clearly best and we currently
+  burn 500 ms confirming it.
+
+  SECOND, AND THIS IS THE LUCKY BIT: Generals.io has a REAL identity action.
+  Action index 0 on every tile is "pass". You can literally stand still and
+  think. Most domains have to simulate an identity action or argue by
+  analogy - we have one in the rules.
+
+  THIRD: the game has a MOVE QUEUE. You can queue up a path of moves in
+  advance and the server executes them one per tick. That is prefix
+  commitment implemented for us by the game itself.
+
+  So both of the paper's decisions have a direct, literal counterpart in our
+  domain. That is unusual and it is why I think this is where our
+  contribution is.
+
+
+(3) WHAT YOU TRANSLATE
+
+  DECISION 1, and this is genuinely about ten lines:
+
+      scores = evaluate_all_moves_batched()      # 0.6 ms, we already have it
+
+      if best_score - second_best_score > margin:
+          play the best move immediately          # not close - deep search is waste
+      else:
+          spend the remaining ~490 ms searching properly
+
+  DECISION 2:
+
+      if the planned path runs entirely through OUR OWN territory:
+          queue the whole path, skip planning for that many ticks
+      else if the path approaches contested tiles:
+          commit one move, re-plan next tick
+
+  A stack walking 12 tiles home to the general is a robust plan - nothing
+  can go wrong, so commit all 12 and think about something else for 12
+  ticks. A stack walking into contact is fragile - commit one step.
+
+
+(4) CONSIDERATIONS
+
+  * The margin threshold has to be tuned, and there is a real risk of
+    getting it wrong in the dangerous direction: skipping deep search on a
+    tick that LOOKED obvious but was actually critical. Mitigation: never
+    skip the search when the enemy has a stack within k tiles of our
+    general, regardless of the margin.
+
+  * Measuring the benefit honestly is harder than it looks. The clean
+    experiment is: FIX THE TOTAL COMPUTE BUDGET FOR A WHOLE GAME, and vary
+    how it is spread across ticks. If metareasoned allocation beats uniform
+    allocation at the SAME total compute, that is a clean result. If you
+    just make the bot faster you have proved nothing interesting.
+
+  * Do not over-claim novelty. Metareasoning is thirty years old. What is
+    (as far as I can find) new is applying identity actions and prefix
+    commitment in a SIMULTANEOUS-MOVE ADVERSARIAL game with a domain that
+    supplies both mechanics natively. Claim that, not more.
+
+
+================================================================================
+PART 3 - THE INSIGHTS, PULLED OUT
+================================================================================
+
+Here is everything above compressed into numbered insights you can actually
+use. Each one says where it came from.
+
+  I1.  ANYTIME IS MANDATORY, NOT OPTIONAL.
+       We must return a move in 500 ms whether or not we are finished. Every
+       algorithm has to be interruptible with a usable answer at all times.
+                                                              [ARA*]
+
+  I2.  A LOOSE ANSWER NOW BEATS A PERFECT ANSWER LATE - AND YOU CAN KNOW HOW
+       LOOSE. Inflating the heuristic by eps gives a path at most eps times
+       optimal. That is a guarantee, so "good enough" becomes measurable
+       rather than hand-wavy.
+                                                              [ARA*]
+
+  I3.  NEVER THROW AWAY COMPUTED WORK.
+       ARA* carries INCONS between passes. RTAA* carries the h table between
+       ticks. Min-conflicts repairs last tick's assignment. On a board that
+       barely changes between decisions, this is THE organising principle of
+       the whole agent.
+                                          [ARA*, RTAA*, min-conflicts]
+
+  I4.  A HEURISTIC CAN IMPROVE ITSELF WITHOUT ANY LEARNING.
+       h(s) = g(s_bar) + h(s_bar) - g(s) is an admissible update derived
+       from an inequality. The bot gets better at the specific map it is
+       playing, with no model, no training, no data.
+                                                              [RTAA*]
+
+  I5.  IF YOU HAD TO RAISE h SOMEWHERE, THAT PLACE IS A TRAP.
+       Free depression detection: one bit per tile. Avoid marked tiles.
+                                                  [depression avoidance]
+
+  I6.  A TERM THAT DOES NOT VARY BETWEEN CANDIDATES CANNOT CHANGE AN ARGMAX.
+       This is why our danger term made the bot worse (20% -> 15%), and why
+       depression marks should work where it failed. Anything you add to the
+       evaluation must DISCRIMINATE between the moves you are choosing among.
+                                       [our own failed experiment]
+
+  I7.  A CHEAP ESTIMATE CAN DECIDE WHETHER AN EXPENSIVE COMPUTATION IS WORTH
+       DOING. ProbCut uses a shallow search to skip a deep one. Metareasoning
+       uses a 1-ply scan to skip the whole search. SAME IDEA, TWO LEVELS.
+                                              [ProbCut, metareasoning]
+
+  I8.  SOUND PRUNING IS NOT ENOUGH AT b = 400. We have to accept a small,
+       quantified probability of error to get depth. T sigma is the dial.
+                                                              [ProbCut]
+
+  I9.  REPAIR BEATS REBUILD WHEN THE PROBLEM BARELY CHANGED.
+       Last tick's stack assignment is nearly right. Fix the two things that
+       broke instead of re-solving from an empty assignment.
+                                                       [min-conflicts]
+
+  I10. UNSATISFIABILITY IS INFORMATION, NOT JUST FAILURE.
+       If no assignment can cover a threat, we are PROVABLY losing that tile.
+       Feed that into the evaluation. This is stronger than any heuristic
+       opinion, and I have not seen it done in this literature.
+                                          [min-conflicts, our idea]
+
+  I11. MOST TICKS ARE OBVIOUS. Spending equal time on every tick is the
+       single biggest waste in the current design.
+                                            [metareasoning, your idea]
+
+  I12. THE GAME HANDS US BOTH METAREASONING MECHANICS FOR FREE.
+       "pass" is a genuine identity action. The move queue is genuine prefix
+       commitment. We do not have to simulate either.
+                                            [metareasoning, our domain]
+
+  I13. CHANGE WHAT YOU SEARCH, NOT HOW YOU SCORE.
+       Our bot cannot defend because it never simulates the opponent moving.
+       No evaluation term fixes that. Only searching the opponent's replies
+       fixes it.
+                                       [our own failed experiment]
+
+  I14. REMOVING FOG IS WHAT MAKES ALL OF THIS LEGAL.
+       Minimax, provable statements, exact evaluation - none of it is sound
+       with fog. Our modification is not a simplification, it is the enabling
+       assumption.
+                                                        [our own design]
+
+
+================================================================================
+PART 4 - THE ARCHITECTURE
+================================================================================
+
+This is the part to understand. It is one agent, and each paper occupies a
+specific slot in it.
+
+4.1  THE ONE-LINE VERSION
+
+  Every tick: cheaply decide whether this tick is worth thinking about; if it
+  is, use a CSP to propose a few coherent plans, search over those plans with
+  an anytime adversarial search, and commit as far ahead as the plan is
+  trustworthy. Carry everything you learned into the next tick.
+
+
+4.2  THE DIAGRAM
+
+  +==========================================================================+
+  |                       ONE TICK  (budget: 500 ms)                         |
+  +==========================================================================+
+
+    [ STATE CARRIED IN FROM LAST TICK ]
+        h table over tiles ........... RTAA*
+        depression marks ............. paper 3
+        last stack assignment ........ min-conflicts
+        queued moves not yet played .. prefix commitment
+                    |
+                    v
+  +--------------------------------------------------------------------------+
+  | STEP 0 - IS A MOVE ALREADY QUEUED AND STILL VALID?                        |
+  |                                                                           |
+  |   If yes, play it. Cost: ~0 ms. Done for this tick.                       |
+  |   This is prefix commitment cashing in. On a long march home this          |
+  |   skips the entire rest of the loop for a dozen ticks in a row.            |
+  +--------------------------------------------------------------------------+
+                    | no queued move
+                    v
+  +--------------------------------------------------------------------------+
+  | STEP 1 - PERCEIVE                                                    ~2ms |
+  |                                                                           |
+  |   - recompute distance fields, frontier, threats                          |
+  |   - apply the RTAA* update from last tick's search:                       |
+  |         h(s) = g(s_bar) + h(s_bar) - g(s)   for expanded s                |
+  |   - mark any tile whose h we just raised     [depression avoidance]       |
+  +--------------------------------------------------------------------------+
+                    |
+                    v
+  +--------------------------------------------------------------------------+
+  | STEP 2 - METAREASON: IS THIS TICK WORTH THINKING ABOUT?           ~0.6ms |
+  |                                                    [PAPER 6, decision 1] |
+  |   Run the batched 1-ply scan we already have - every legal move,          |
+  |   one JAX call, 0.6 ms.                                                   |
+  |                                                                           |
+  |       gap = best_score - second_best_score                                |
+  |                                                                           |
+  |       if gap > margin  AND  no enemy stack within k tiles of our general: |
+  |               ---> PLAY IT NOW. Tick cost: about 3 ms.                    |
+  |                                                                           |
+  |       else:                                                               |
+  |               ---> the decision is close or dangerous. Think properly.    |
+  |                    We have ~490 ms left.                                  |
+  |                                                                           |
+  |   THIS IS THE BIGGEST WIN IN THE WHOLE DESIGN. Most ticks exit here.      |
+  +--------------------------------------------------------------------------+
+                    | this tick matters
+                    v
+  +--------------------------------------------------------------------------+
+  | STEP 3 - CSP: WHAT ARE THE SENSIBLE PLANS?                        ~20ms |
+  |                                                              [PAPER 5]   |
+  |   Variables:   one per stack we control                                   |
+  |   Domains:     {expand R, gather, defend T, take castle C, intercept S}   |
+  |   Constraints: no two stacks on one target;                               |
+  |                the general's threat MUST be assigned a defender;          |
+  |                a stack's army must exceed its task's requirement          |
+  |                                                                           |
+  |   Seed with LAST TICK'S ASSIGNMENT and repair only what broke.            |
+  |                                                                           |
+  |   OUTPUT A: a handful (4-8) of coherent candidate plans                   |
+  |   OUTPUT B: if a threat CANNOT be covered -> we are provably losing that  |
+  |             tile -> hand that fact to the evaluation function  [I10]      |
+  +--------------------------------------------------------------------------+
+                    | 4-8 candidate plans instead of 400 raw moves
+                    v
+  +--------------------------------------------------------------------------+
+  | STEP 4 - ANYTIME ADVERSARIAL SEARCH                             ~450ms  |
+  |                                                    [PAPERS 1 + 4]        |
+  |                                                                           |
+  |   best = the greedy move            # never be empty-handed  [ARA*]       |
+  |                                                                           |
+  |   for eps in [3.0, 2.0, 1.5, 1.2, 1.0]:        <-- ARA* anytime loop      |
+  |       if out of time: break                                               |
+  |                                                                           |
+  |       alpha-beta over the candidate plans:                                |
+  |            OUR moves      : the 4-8 CSP plans, kept detailed              |
+  |            THEIR moves    : abstracted to ~4 intents                      |
+  |                             {defend, expand, attack our general, castle}  |
+  |            at each node   : ProbCut - do the 0.6 ms shallow scan first,   |
+  |                             skip the deep search if it lands far          |
+  |                             outside (alpha, beta)          [PAPER 4]      |
+  |            evaluation     : land + army + production rate                 |
+  |                             + h-table distances          [RTAA*]          |
+  |                             - depression penalty         [PAPER 3]        |
+  |                             - provably-lost tiles        [PAPER 5]        |
+  |                                                                           |
+  |       best = result;  record the eps' bound                               |
+  +--------------------------------------------------------------------------+
+                    |
+                    v
+  +--------------------------------------------------------------------------+
+  | STEP 5 - COMMIT: HOW FAR AHEAD DO WE TRUST THIS?                        |
+  |                                                    [PAPER 6, decision 2] |
+  |                                                                           |
+  |   path entirely inside our own territory,                                 |
+  |   no enemy stack within reach          -> QUEUE THE WHOLE PATH            |
+  |                                           (skip steps 1-4 for N ticks)    |
+  |                                                                           |
+  |   path approaches contested tiles      -> COMMIT ONE MOVE, re-plan        |
+  +--------------------------------------------------------------------------+
+                    |
+                    v
+    [ STATE CARRIED OUT TO NEXT TICK ]
+        updated h table, new depression marks,
+        the CSP assignment, the queued path
+
+
+4.3  WHY IT IS ORDERED THIS WAY
+
+  Notice the funnel. Each step is cheaper than the one after it, and each one
+  can terminate the tick early:
+
+      Step 0    0 ms      queued move        -> exits most ticks in a march
+      Step 2    0.6 ms    1-ply scan         -> exits most "obvious" ticks
+      Step 3    20 ms     CSP repair         -> narrows 400 moves to 4-8 plans
+      Step 4    450 ms    the real search    -> only runs when it matters
+
+  That ordering is itself the metareasoning principle applied to the
+  architecture, not just to one decision: NEVER PAY FOR A COMPUTATION UNTIL
+  A CHEAPER ONE HAS FAILED TO ANSWER THE QUESTION.
+
+
+4.4  HOW THE PAPERS COMBINE - THE SHORT ANSWER
+
+  You asked for something like "metareasoning using ARA*, RTAA* for the
+  metareasoned decision, ProbCut, CSP somewhere". Close. Here is the exact
+  relationship:
+
+      METAREASONING is the GATE.
+          It decides whether we search at all, and how far we commit.
+          It sits OUTSIDE everything else.
+
+      THE CSP is the PROPOSER.
+          It converts 400 raw moves into a handful of coherent plans, and
+          reports when a threat is uncoverable.
+          It runs BEFORE the search and shrinks its input.
+
+      ARA* is the SHAPE OF THE SEARCH.
+          The anytime loop with decreasing eps. It makes the search
+          interruptible and gives us a quality bound.
+
+      PROBCUT lives INSIDE the search.
+          At each node, it decides whether to go deep. Same idea as the
+          metareasoning gate, one level down.
+
+      RTAA* is the MEMORY.
+          It sits underneath all of it, supplying the h values the
+          evaluation uses, and improving them every tick.
+
+      DEPRESSION AVOIDANCE is a CORRECTION on RTAA*.
+          One bit per tile, consumed by the evaluation.
+
+  In one sentence:
+
+      METAREASONING decides IF we think,
+      the CSP decides WHAT we think about,
+      ARA* decides HOW LONG we think,
+      PROBCUT decides HOW DEEP within that,
+      and RTAA* is what we REMEMBER between thoughts.
+
+
+================================================================================
+PART 5 - WHAT TO BUILD, IN WHAT ORDER
+================================================================================
+
+  Baseline to beat: greedy_eval.py, 20% win rate, losing 12/20 by general
+  capture.
+
+  Rule for the whole month: every change is a 200-game headless match against
+  the PREVIOUS version on the same seeds. Nothing is kept unless it wins.
+
+      python server/local_server.py --p0 strategies/new.py \
+             --p1 strategies/old.py --games 200 --headless
+
+  WEEK 1 - stop dying.                         [RTAA*, depression avoidance]
+      - h(tile) table, initialised as BFS distance
+      - the RTAA* update after each tick's search
+      - depression marks, one bit per tile
+      - a 2-ply check restricted ONLY to enemy replies that capture our
+        general. Not 400 replies - the four tiles next to our general. This
+        is minimax with a savagely pruned opponent move list, and it targets
+        12 of our 20 losses directly.
+      TARGET: above 50%. From 20%, anything over 50% is a real result.
+
+  WEEK 2 - get depth.                       [ProbCut, action abstraction]
+      - collapse the opponent's ~400 moves to ~4 intents
+      - alpha-beta with a transposition table (the game is deterministic, so
+        hashing is clean)
+      - ProbCut calibration: a few thousand self-play positions, 1-ply vs
+        3-ply, fit the line. THIS PRODUCES YOUR FIGURE.
+      - iterative deepening so the search is interruptible
+      TARGET: 3 ply inside the budget; beat week 1.
+
+  WEEK 3 - the assignment layer.                        [min-conflicts]
+      - the stack-to-task CSP
+      - repair seeded from last tick
+      - unsatisfiability fed to the evaluation
+      TARGET: general captures conceded should fall. Measure that number
+      directly, not just win rate.
+
+  WEEK 4 - metareasoning, and write up.                [metareasoning]
+      - decision 1: the margin gate
+      - decision 2: prefix commitment via the move queue
+      - THE EXPERIMENT: fix total compute per game, vary its allocation.
+      TARGET: same strength at materially less compute.
+
+  IF EVERYTHING SLIPS: week 1 alone takes the bot from 20% to (target) over
+  50%, with two papers implemented and a diagnosed, measured failure story.
+  That is a defensible project on its own.
+
+
+================================================================================
+PART 6 - GLOSSARY
+================================================================================
+
+  These are the terms you will need to say out loud. Short definitions.
+
+  ADMISSIBLE HEURISTIC
+      An h that never overestimates the true remaining cost. Required for A*
+      to be optimal.
+
+  ALPHA-BETA PRUNING
+      Skipping subtrees of a game tree that provably cannot affect the final
+      choice, tracked with a window (alpha, beta). Sound - returns exactly
+      what full minimax would.
+
+  ANYTIME ALGORITHM
+      One that always has a valid answer available, which improves the longer
+      it runs. You can stop it at any moment.
+
+  BRANCHING FACTOR (b)
+      The average number of legal moves at a position. Ours is 40-400;
+      chess is about 35.
+
+  FORWARD PRUNING
+      Cutting a subtree that MIGHT have mattered, based on a cheap estimate.
+      Unsound but much more aggressive than alpha-beta. ProbCut is this.
+
+  GAT (GOAL ACHIEVEMENT TIME)
+      Planning time plus execution time. The metric that makes "should I
+      think longer?" a well-posed question.
+
+  HEURISTIC DEPRESSION
+      A region where h underestimates badly compared to its border. A bowl in
+      the heuristic landscape that traps greedy agents.
+
+  IDENTITY ACTION
+      An action that leaves you in the same state, so you can think longer.
+      In Generals.io this is "pass".
+
+  LOCAL INCONSISTENCY
+      A state whose g was just lowered and which has not been re-expanded.
+      ARA*'s OPEN list is exactly the set of these.
+
+  MIN-CONFLICTS
+      Repair-based CSP solving: start from a complete broken assignment, fix
+      the most-conflicted variable, repeat.
+
+  METAREASONING
+      Reasoning about which computation to perform, rather than which action
+      to take.
+
+  NULL WINDOW
+      A search with alpha and beta one apart. It cannot return an exact
+      value, only "above or below", which makes it very cheap.
+
+  PREFIX COMMITMENT
+      How many steps of a planned path you execute before re-planning.
+
+  SIMULTANEOUS MOVES
+      Both players commit for the same tick without seeing the other. Breaks
+      the assumption behind plain minimax.
+
+  TRANSPOSITION TABLE
+      A hash table of positions already searched, so reaching the same
+      position by a different move order costs nothing.
+
+  WEIGHTED A*
+      A* with f = g + eps*h for eps > 1. Faster, and provably within a factor
+      eps of optimal.
+
+
+================================================================================
+END
+================================================================================
+
+  If something here is unclear, that is a bug in this document, not in you.
+

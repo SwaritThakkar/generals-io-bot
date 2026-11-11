@@ -1,0 +1,473 @@
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#e9ecec; --surface:#f7f9f8; --surface-2:#dfe4e4; --sunken:#d3dad9;
+  --line:#c5cecd; --line-soft:#d9e0df;
+  --ink:#131a1c; --ink-2:#4a585c; --ink-3:#7b8a8e;
+  --brass:#9a6b12; --brass-ink:#7d5709; --brass-soft:rgba(154,107,18,.14);
+  --p0:#bf3b34; --p1:#2c5f96;
+  --p0-soft:rgba(191,59,52,.18); --p1-soft:rgba(44,95,150,.18);
+  --neutral-land:#b6c0bf; --neutral-castle:#8e9c9c; --mountain:#77868a;
+  --grid:rgba(19,26,28,.16); --tile-ink:#ffffff; --plain-ink:#2a3538;
+  --shadow:0 1px 2px rgba(19,26,28,.08), 0 8px 24px rgba(19,26,28,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+  --ground:#0b1012; --surface:#121a1d; --surface-2:#1a2429; --sunken:#0e1518;
+  --line:#243036; --line-soft:#1b262b;
+  --ink:#e2e9ea; --ink-2:#9db0b4; --ink-3:#6b7d82;
+  --brass:#d7a244; --brass-ink:#e8b95f; --brass-soft:rgba(215,162,68,.16);
+  --p0:#d1544a; --p1:#4a86c6;
+  --p0-soft:rgba(209,84,74,.22); --p1-soft:rgba(74,134,198,.22);
+  --neutral-land:#2b3a3f; --neutral-castle:#485b61; --mountain:#162024;
+  --grid:rgba(226,233,234,.10); --tile-ink:#ffffff; --plain-ink:#b9c8cb;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b1012; --surface:#121a1d; --surface-2:#1a2429; --sunken:#0e1518;
+  --line:#243036; --line-soft:#1b262b;
+  --ink:#e2e9ea; --ink-2:#9db0b4; --ink-3:#6b7d82;
+  --brass:#d7a244; --brass-ink:#e8b95f; --brass-soft:rgba(215,162,68,.16);
+  --p0:#d1544a; --p1:#4a86c6;
+  --p0-soft:rgba(209,84,74,.22); --p1-soft:rgba(74,134,198,.22);
+  --neutral-land:#2b3a3f; --neutral-castle:#485b61; --mountain:#162024;
+  --grid:rgba(226,233,234,.10); --tile-ink:#ffffff; --plain-ink:#b9c8cb;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:24px 20px 40px; display:flex; flex-direction:column; gap:18px}
+
+/* ---- header ---- */
+.masthead{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  border-bottom:1px solid var(--line); padding-bottom:14px}
+.brand{display:flex; flex-direction:column; gap:2px}
+.eyebrow{font-family:"Barlow Condensed",ui-sans-serif,sans-serif; font-weight:600; font-size:12px;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--brass-ink)}
+h1{font-family:"Barlow Condensed",ui-sans-serif,sans-serif; font-weight:700; font-size:34px;
+  letter-spacing:.005em; margin:0; line-height:1.05; text-wrap:balance}
+.sub{color:var(--ink-2); font-size:13px}
+.facts{display:flex; gap:22px; flex-wrap:wrap}
+.fact{display:flex; flex-direction:column}
+.fact b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:600; font-size:16px; font-variant-numeric:tabular-nums}
+.fact span{font-family:"Barlow Condensed",ui-sans-serif,sans-serif; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3)}
+
+/* ---- layout ---- */
+.stage{display:grid; grid-template-columns:minmax(0,1fr) 296px; gap:18px; align-items:start}
+@media (max-width:900px){ .stage{grid-template-columns:minmax(0,1fr)} }
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:4px; box-shadow:var(--shadow)}
+.board-panel{padding:14px; display:flex; flex-direction:column; gap:12px}
+.board-hold{background:var(--sunken); border:1px solid var(--line-soft); border-radius:3px; padding:8px;
+  display:flex; justify-content:center; overflow-x:auto}
+canvas#board{display:block; image-rendering:auto; max-width:100%; height:auto; touch-action:manipulation}
+
+/* ---- transport ---- */
+.transport{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.btns{display:flex; gap:4px}
+button{
+  font-family:"IBM Plex Sans",sans-serif; font-size:13px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:3px;
+  min-width:34px; height:32px; padding:0 9px; cursor:pointer; display:grid; place-items:center;
+  transition:background .12s ease, border-color .12s ease, color .12s ease;
+}
+button:hover{border-color:var(--brass); color:var(--brass-ink)}
+button:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+button.primary{background:var(--brass-soft); border-color:var(--brass); color:var(--brass-ink); font-weight:600; min-width:44px}
+button svg{width:15px; height:15px; fill:currentColor}
+.turn-read{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:13px;
+  color:var(--ink-2); white-space:nowrap}
+.turn-read b{color:var(--ink); font-weight:600}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; flex:1 1 180px; min-width:140px; height:32px; background:transparent; cursor:pointer;
+}
+input[type=range]:focus-visible{outline:2px solid var(--brass); outline-offset:2px; border-radius:3px}
+input[type=range]::-webkit-slider-runnable-track{height:4px; background:var(--sunken); border:1px solid var(--line); border-radius:2px}
+input[type=range]::-moz-range-track{height:4px; background:var(--sunken); border:1px solid var(--line); border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:13px; height:18px; margin-top:-8px;
+  background:var(--brass); border:1px solid var(--brass-ink); border-radius:2px}
+input[type=range]::-moz-range-thumb{width:13px; height:18px; background:var(--brass); border:1px solid var(--brass-ink); border-radius:2px}
+select{font-family:"IBM Plex Mono",monospace; font-size:12px; height:32px; padding:0 6px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:3px}
+select:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+
+/* ---- rail ---- */
+.rail{display:flex; flex-direction:column; gap:14px}
+.card{padding:12px 13px}
+.card h2{font-family:"Barlow Condensed",sans-serif; font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 9px; font-weight:600}
+.verdict{display:flex; align-items:center; gap:9px; padding:11px 13px; border-left:3px solid var(--brass)}
+.verdict .who{font-family:"Barlow Condensed",sans-serif; font-size:20px; font-weight:700; letter-spacing:.01em}
+.verdict .how{font-size:12px; color:var(--ink-2)}
+
+.score{display:flex; flex-direction:column; gap:7px}
+.srow{display:grid; grid-template-columns:11px 1fr auto auto; align-items:center; gap:9px}
+.swatch{width:11px; height:11px; border-radius:2px}
+.sname{font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:15px; letter-spacing:.03em}
+.sname.dead{color:var(--ink-3); text-decoration:line-through}
+.snum{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:13px; min-width:46px; text-align:right}
+.snum small{display:block; font-family:"Barlow Condensed",sans-serif; font-size:9px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--ink-3)}
+
+.chart{width:100%; height:66px; display:block}
+.chart-label{display:flex; justify-content:space-between; font-family:"Barlow Condensed",sans-serif;
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px}
+
+.legend{display:grid; grid-template-columns:1fr 1fr; gap:7px 10px; font-size:12px; color:var(--ink-2)}
+.legend div{display:flex; align-items:center; gap:7px}
+.chip{width:16px; height:16px; border-radius:2px; border:1px solid var(--grid); display:grid; place-items:center; flex:none}
+.chip svg{width:10px; height:10px}
+.hint{font-size:11.5px; color:var(--ink-3); line-height:1.55}
+kbd{font-family:"IBM Plex Mono",monospace; font-size:10.5px; background:var(--surface-2); border:1px solid var(--line);
+  border-radius:2px; padding:1px 4px; color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="brand">
+      <div class="eyebrow">Perfect-information variant</div>
+      <h1>__TITLE__</h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="facts">
+      <div class="fact"><b id="f-size"></b><span>Grid</span></div>
+      <div class="fact"><b id="f-mtn"></b><span>Mountains</span></div>
+      <div class="fact"><b id="f-cas"></b><span>Castles</span></div>
+      <div class="fact"><b id="f-len"></b><span>Turns</span></div>
+    </div>
+  </header>
+
+  <div class="stage">
+    <section class="panel board-panel">
+      <div class="board-hold"><canvas id="board"></canvas></div>
+      <div class="transport">
+        <div class="btns">
+          <button id="first" title="First turn (Home)" aria-label="First turn"><svg viewBox="0 0 16 16"><path d="M4 3h2v10H4zM14 3v10L7 8z"/></svg></button>
+          <button id="prev" title="Back one turn (Left arrow)" aria-label="Back one turn"><svg viewBox="0 0 16 16"><path d="M12 3v10L4 8z"/></svg></button>
+          <button id="play" class="primary" title="Play / pause (Space)" aria-label="Play"><svg viewBox="0 0 16 16"><path d="M4 3l9 5-9 5z"/></svg></button>
+          <button id="next" title="Forward one turn (Right arrow)" aria-label="Forward one turn"><svg viewBox="0 0 16 16"><path d="M4 3l8 5-8 5z"/></svg></button>
+          <button id="last" title="Last turn (End)" aria-label="Last turn"><svg viewBox="0 0 16 16"><path d="M10 3h2v10h-2zM2 3v10l7-5z"/></svg></button>
+        </div>
+        <input type="range" id="scrub" min="0" value="0" step="1" aria-label="Turn">
+        <div class="turn-read">turn <b id="t-now">0</b> / <span id="t-max">0</span></div>
+        <select id="speed" aria-label="Playback speed">
+          <option value="4">4 tps</option>
+          <option value="10" selected>10 tps</option>
+          <option value="25">25 tps</option>
+          <option value="60">60 tps</option>
+          <option value="0">max</option>
+        </select>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <div class="panel verdict" id="verdict">
+        <div><div class="who" id="v-who">—</div><div class="how" id="v-how"></div></div>
+      </div>
+
+      <div class="panel card">
+        <h2>Scoreboard</h2>
+        <div class="score" id="score"></div>
+      </div>
+
+      <div class="panel card">
+        <div class="chart-label"><span>Land</span><span id="c-land"></span></div>
+        <canvas class="chart" id="chart-land"></canvas>
+        <div class="chart-label" style="margin-top:11px"><span>Army</span><span id="c-army"></span></div>
+        <canvas class="chart" id="chart-army"></canvas>
+      </div>
+
+      <div class="panel card">
+        <h2>Board key</h2>
+        <div class="legend">
+          <div><span class="chip" id="k-gen"><svg viewBox="0 0 16 16"><path d="M2 12h12v2H2zM2 4l3 3 3-5 3 5 3-3v7H2z" fill="currentColor"/></svg></span> General</div>
+          <div><span class="chip" id="k-cas"><svg viewBox="0 0 16 16"><path d="M2 6h2V4h2v2h4V4h2v2h2v8H2z" fill="currentColor"/></svg></span> Castle</div>
+          <div><span class="chip" id="k-mtn"></span> Mountain</div>
+          <div><span class="chip" id="k-neu"></span> Neutral</div>
+        </div>
+        <div class="hint" style="margin-top:11px">
+          Arrows show the move each side committed on this turn — both are resolved
+          simultaneously. No fog: this board is exactly what both players observe.
+        </div>
+      </div>
+
+      <div class="panel card">
+        <h2>Keys</h2>
+        <div class="hint">
+          <kbd>space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step ·
+          <kbd>shift</kbd> + arrows jump 10 · <kbd>home</kbd><kbd>end</kbd> ends
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script id="replay-data" type="application/json">__DATA__</script>
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById('replay-data').textContent);
+  const H = D.h, W = D.w, N = D.n, T = D.turns, HW = H * W;
+
+  const bytes = s => { const b = atob(s), u = new Uint8Array(b.length);
+    for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
+  const i32 = s => { const u = bytes(s); return new Int32Array(u.buffer, 0, u.length >> 2); };
+  const i16 = s => { const u = bytes(s); return new Int16Array(u.buffer, 0, u.length >> 1); };
+
+  const terrain = bytes(D.terrain);
+  const owner   = new Int8Array(bytes(D.owner).buffer);
+  const army    = D.armyBits === 32 ? i32(D.army) : i16(D.army);
+  const flags   = bytes(D.flags);
+  const moves   = i32(D.moves);
+  const land    = i32(D.land);
+  const armies  = i32(D.armies);
+
+  // ---- theme tokens -------------------------------------------------------
+  let C = {};
+  const readTheme = () => {
+    const s = getComputedStyle(document.documentElement);
+    const v = k => s.getPropertyValue(k).trim();
+    C = {
+      players: [v('--p0'), v('--p1'), '#4c8b52', '#7a5aa8', '#b8862c', '#2f8b8b'].slice(0, Math.max(N, 2)),
+      neutral: v('--neutral-land'), castle: v('--neutral-castle'), mountain: v('--mountain'),
+      grid: v('--grid'), tileInk: v('--tile-ink'), plainInk: v('--plain-ink'),
+      sunken: v('--sunken'), line: v('--line'), ink3: v('--ink-3'), brass: v('--brass'),
+    };
+  };
+
+  // ---- board canvas -------------------------------------------------------
+  const cv = document.getElementById('board'), ctx = cv.getContext('2d');
+  let cell = 30, dpr = 1;
+
+  const layout = () => {
+    const hold = cv.parentElement.clientWidth - 18;
+    cell = Math.max(16, Math.min(34, Math.floor(hold / W)));
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = W * cell * dpr; cv.height = H * cell * dpr;
+    cv.style.width = (W * cell) + 'px'; cv.style.height = (H * cell) + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  const crown = (x, y, s, col) => {
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x - s, y + s * .55); ctx.lineTo(x - s, y - s * .35);
+    ctx.lineTo(x - s * .42, y + s * .1); ctx.lineTo(x, y - s * .75);
+    ctx.lineTo(x + s * .42, y + s * .1); ctx.lineTo(x + s, y - s * .35);
+    ctx.lineTo(x + s, y + s * .55); ctx.closePath(); ctx.fill();
+  };
+  const tower = (x, y, s, col) => {
+    ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, s * .3);
+    ctx.beginPath(); ctx.arc(x, y, s * .95, 0, Math.PI * 2); ctx.stroke();
+  };
+
+  const drawBoard = (t) => {
+    const off = t * HW;
+    ctx.clearRect(0, 0, W * cell, H * cell);
+    const fs = Math.max(8, Math.round(cell * .40));
+    ctx.font = `600 ${fs}px "IBM Plex Mono", ui-monospace, monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+    for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) {
+      const i = r * W + c, x = c * cell, y = r * cell;
+      const o = owner[off + i], f = flags[off + i], a = army[off + i];
+      const isMtn = terrain[i] === 1;
+      const isCastle = (f & 1) === 1, isGen = (f & 2) === 2;
+
+      ctx.fillStyle = isMtn ? C.mountain
+        : (o >= 0 ? C.players[o] : (isCastle || isGen ? C.castle : C.neutral));
+      ctx.fillRect(x, y, cell, cell);
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.strokeRect(x + .5, y + .5, cell - 1, cell - 1);
+      if (isMtn) continue;
+
+      const cx = x + cell / 2, cy = y + cell / 2;
+      const ink = o >= 0 ? C.tileInk : C.plainInk;
+      if (isGen) crown(cx, cy, cell * .30, o >= 0 ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.18)');
+      else if (isCastle) tower(cx, cy, cell * .30, o >= 0 ? 'rgba(255,255,255,.32)' : C.ink3);
+
+      if (a !== 0) {
+        ctx.lineWidth = Math.max(2, cell * .11); ctx.strokeStyle = 'rgba(0,0,0,.30)';
+        ctx.lineJoin = 'round'; ctx.strokeText(a, cx, cy + 1);
+        ctx.fillStyle = ink; ctx.fillText(a, cx, cy + 1);
+      }
+    }
+
+    // committed moves for this turn
+    for (let p = 0; p < N; p++) {
+      const act = moves[t * N + p];
+      const k = act % D.cellActions;
+      if (k === 0) continue;
+      const src = Math.floor(act / D.cellActions), m = k - 1, d = m % 4;
+      const dr = [-1, 1, 0, 0][d], dc = [0, 0, -1, 1][d];
+      const r0 = Math.floor(src / W), c0 = src % W, r1 = r0 + dr, c1 = c0 + dc;
+      if (r1 < 0 || r1 >= H || c1 < 0 || c1 >= W) continue;
+      const x0 = c0 * cell + cell / 2, y0 = r0 * cell + cell / 2;
+      const x1 = c1 * cell + cell / 2, y1 = r1 * cell + cell / 2;
+      const mx = x0 + (x1 - x0) * .82, my = y0 + (y1 - y0) * .82;
+      ctx.lineCap = 'round';
+      for (const [col, wdt] of [['rgba(0,0,0,.45)', cell * .20], [C.players[p], cell * .11]]) {
+        ctx.strokeStyle = col; ctx.lineWidth = wdt;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(mx, my); ctx.stroke();
+      }
+      ctx.fillStyle = C.players[p];
+      const ang = Math.atan2(y1 - y0, x1 - x0), hd = cell * .26;
+      ctx.beginPath();
+      ctx.moveTo(x0 + (x1 - x0) * .98, y0 + (y1 - y0) * .98);
+      ctx.lineTo(mx - hd * Math.cos(ang - .5), my - hd * Math.sin(ang - .5));
+      ctx.lineTo(mx - hd * Math.cos(ang + .5), my - hd * Math.sin(ang + .5));
+      ctx.closePath(); ctx.fill();
+      if ((m >= 4)) {  // "send half" marker
+        ctx.fillStyle = 'rgba(255,255,255,.9)';
+        ctx.beginPath(); ctx.arc(x0, y0, cell * .09, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  };
+
+  // ---- rail ---------------------------------------------------------------
+  const scoreEl = document.getElementById('score');
+  scoreEl.innerHTML = D.names.map((nm, p) => `
+    <div class="srow">
+      <span class="swatch" id="sw${p}"></span>
+      <span class="sname" id="sn${p}">${nm}</span>
+      <span class="snum" id="sl${p}">0<small>land</small></span>
+      <span class="snum" id="sa${p}">0<small>army</small></span>
+    </div>`).join('');
+
+  const charts = [
+    { el: document.getElementById('chart-land'), src: land, tag: document.getElementById('c-land') },
+    { el: document.getElementById('chart-army'), src: armies, tag: document.getElementById('c-army') },
+  ];
+
+  const drawChart = (ch, t) => {
+    const cx = ch.el.getContext('2d');
+    const w = ch.el.clientWidth, h = 66;
+    ch.el.width = w * dpr; ch.el.height = h * dpr;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx.clearRect(0, 0, w, h);
+    let max = 1;
+    for (let i = 0; i < T * N; i++) max = Math.max(max, ch.src[i]);
+    cx.strokeStyle = C.line; cx.lineWidth = 1;
+    for (const fy of [0, .5, 1]) {
+      const y = 1 + fy * (h - 2);
+      cx.beginPath(); cx.moveTo(0, y + .5); cx.lineTo(w, y + .5); cx.stroke();
+    }
+    const X = i => (T <= 1 ? 0 : i / (T - 1) * (w - 1));
+    const Y = v => h - 2 - (v / max) * (h - 5);
+    for (let p = 0; p < N; p++) {
+      cx.beginPath(); cx.moveTo(X(0), h); 
+      for (let i = 0; i < T; i++) cx.lineTo(X(i), Y(ch.src[i * N + p]));
+      cx.lineTo(X(T - 1), h); cx.closePath();
+      cx.globalAlpha = .14; cx.fillStyle = C.players[p]; cx.fill(); cx.globalAlpha = 1;
+      cx.beginPath();
+      for (let i = 0; i < T; i++) (i ? cx.lineTo : cx.moveTo).call(cx, X(i), Y(ch.src[i * N + p]));
+      cx.strokeStyle = C.players[p]; cx.lineWidth = 1.6; cx.stroke();
+      cx.beginPath(); cx.arc(X(t), Y(ch.src[t * N + p]), 2.6, 0, Math.PI * 2);
+      cx.fillStyle = C.players[p]; cx.fill();
+    }
+    cx.strokeStyle = C.brass; cx.lineWidth = 1;
+    cx.beginPath(); cx.moveTo(X(t) + .5, 0); cx.lineTo(X(t) + .5, h); cx.stroke();
+    ch.tag.textContent = 'peak ' + max;
+  };
+
+  // ---- playback -----------------------------------------------------------
+  let t = 0, playing = false, tps = 10, acc = 0, last = 0;
+  const scrub = document.getElementById('scrub');
+  const playBtn = document.getElementById('play');
+  const PLAY = '<svg viewBox="0 0 16 16"><path d="M4 3l9 5-9 5z"/></svg>';
+  const PAUSE = '<svg viewBox="0 0 16 16"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>';
+
+  const paint = () => {
+    drawBoard(t);
+    document.getElementById('t-now').textContent = t;
+    scrub.value = t;
+    for (let p = 0; p < N; p++) {
+      document.getElementById('sw' + p).style.background = C.players[p];
+      document.getElementById('sl' + p).innerHTML = land[t * N + p] + '<small>land</small>';
+      document.getElementById('sa' + p).innerHTML = armies[t * N + p] + '<small>army</small>';
+      document.getElementById('sn' + p).classList.toggle('dead', land[t * N + p] === 0 && t > 0);
+    }
+    charts.forEach(c => drawChart(c, t));
+  };
+
+  const setT = v => { t = Math.max(0, Math.min(T - 1, v)); paint(); };
+  const setPlaying = v => {
+    playing = v; playBtn.innerHTML = v ? PAUSE : PLAY;
+    playBtn.setAttribute('aria-label', v ? 'Pause' : 'Play');
+    if (v) { last = performance.now(); acc = 0; requestAnimationFrame(tick); }
+  };
+  const tick = (now) => {
+    if (!playing) return;
+    const dt = (now - last) / 1000; last = now;
+    if (tps === 0) setT(t + 4);
+    else { acc += dt * tps; while (acc >= 1) { acc -= 1; setT(t + 1); } }
+    if (t >= T - 1) { setPlaying(false); return; }
+    requestAnimationFrame(tick);
+  };
+
+  playBtn.onclick = () => { if (t >= T - 1) setT(0); setPlaying(!playing); };
+  document.getElementById('next').onclick = () => { setPlaying(false); setT(t + 1); };
+  document.getElementById('prev').onclick = () => { setPlaying(false); setT(t - 1); };
+  document.getElementById('first').onclick = () => { setPlaying(false); setT(0); };
+  document.getElementById('last').onclick = () => { setPlaying(false); setT(T - 1); };
+  scrub.oninput = e => { setPlaying(false); setT(+e.target.value); };
+  document.getElementById('speed').onchange = e => { tps = +e.target.value; };
+  addEventListener('keydown', e => {
+    const j = e.shiftKey ? 10 : 1;
+    if (e.key === ' ') { e.preventDefault(); playBtn.onclick(); }
+    else if (e.key === 'ArrowRight') { setPlaying(false); setT(t + j); }
+    else if (e.key === 'ArrowLeft') { setPlaying(false); setT(t - j); }
+    else if (e.key === 'Home') { setPlaying(false); setT(0); }
+    else if (e.key === 'End') { setPlaying(false); setT(T - 1); }
+    else return;
+    e.preventDefault();
+  });
+
+  // ---- static chrome ------------------------------------------------------
+  document.getElementById('subtitle').textContent = D.subtitle;
+  document.getElementById('f-size').textContent = H + '×' + W;
+  document.getElementById('f-mtn').textContent = D.mountains;
+  document.getElementById('f-cas').textContent = D.castles;
+  document.getElementById('f-len').textContent = T - 1;
+  document.getElementById('t-max').textContent = T - 1;
+  scrub.max = T - 1;
+
+  const vWho = document.getElementById('v-who'), vHow = document.getElementById('v-how');
+  if (D.winner >= 0) {
+    vWho.textContent = D.names[D.winner] + ' wins';
+    vHow.textContent = land[(T - 1) * N + (1 - D.winner)] === 0
+      ? 'General captured on turn ' + (T - 1)
+      : 'Ahead on land at the turn limit';
+  } else { vWho.textContent = 'Draw'; vHow.textContent = 'No general fell before the turn limit'; }
+
+  const refresh = () => {
+    readTheme(); layout();
+    vWho.style.color = D.winner >= 0 ? C.players[D.winner] : '';
+    document.getElementById('verdict').style.borderLeftColor =
+      D.winner >= 0 ? C.players[D.winner] : C.brass;
+    document.getElementById('k-mtn').style.background = C.mountain;
+    document.getElementById('k-neu').style.background = C.neutral;
+    document.getElementById('k-gen').style.background = C.players[0];
+    document.getElementById('k-gen').style.color = '#fff';
+    document.getElementById('k-cas').style.background = C.castle;
+    document.getElementById('k-cas').style.color = '#fff';
+    paint();
+  };
+
+  addEventListener('resize', refresh);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', refresh);
+  new MutationObserver(refresh).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  document.fonts && document.fonts.ready.then(refresh);
+  refresh();
+})();
+</script>

@@ -1,0 +1,553 @@
+================================================================================
+        SEARCH-ONLY AI FOR PERFECT-INFORMATION GENERALS.IO
+        Project notes — DAC-203
+================================================================================
+
+These are notes in continuous prose, written to be read rather than performed.
+Condense them into slides however you like. The order is: what the game is,
+what the papers say, how I'm putting them together, and what I want to try.
+
+Figures for each section are in media/ - fig1 for the board, fig2 for the
+branching factor, fig3 for the architecture, fig4 onward for the ideas.
+
+
+================================================================================
+1. THE GAME
+================================================================================
+
+
+THE BOARD
+
+the game starts on a grid of square tiles, twenty-three by twenty-three. Four kinds of tile:
+
+  - plain tiles, which anyone can walk on and own
+  - mountains, which are impassable and just sit there as walls
+  - castles, which produce army for whoever owns them
+  - generals, one per player, which are both a base and the thing you must defend
+
+Each player starts owning exactly one tile: their general. Every tile you own
+carries a number, which is how many army units are standing on it. Mine are
+drawn red, my opponent's blue, and unowned tiles are grey.
+
+  [FIGURE - "The board"                                        TO GENERATE
+   One real mid-game position, large and clean, with callouts pointing at: a
+   general (crown), an owned castle (ring), a neutral castle showing its 40-50
+   garrison, a mountain, an owned tile with its army number, and an unowned
+   tile. Both colours present. This is the first picture the audience ever sees
+   of the game, so it must read from the back of the room - use a smaller board
+   with bigger cells, not the full 23x23.
+   Replaces media/fig1, which is about to become wrong.]
+
+
+MOVING AND FIGHTING
+
+Each turn - a "tick" - you pick one tile you own and one of the four directions,
+and you send either all but one of its units, or exactly half of them, to the
+neighbouring tile. You may also pass. One move per tick. That is the whole
+action set.
+
+Combat is resolved by subtraction, which is unusually simple for a strategy
+game. The two stacks cancel one for one and whoever is larger survives with the
+difference.
+
+Concretely: my tile has 10 units and the tile to its right is my opponent's,
+holding 4. I move right, sending all but one - so 9 units leave, and 1 stays
+behind. Nine attackers meet four defenders. I take the tile and it now holds 5
+units, which are mine. Had they held 12 instead, they would have kept the tile
+with 3 left standing.
+
+  [FIGURE - "Combat is subtraction"                            TO GENERATE
+   Three panels. (a) BEFORE: my tile 10, their tile 4, arrow between them.
+   (b) THE MOVE: 9 leave, 1 stays, drawn as the stack splitting. (c) AFTER: my
+   tile shows 1, the captured tile shows 5 and has turned red. A smaller second
+   line underneath: "had they held 12, they keep it with 3".
+   The arithmetic is trivial - show it rather than say it.]
+
+
+Empty tiles cost almost nothing: walk onto a neutral tile with any units at all
+and it is yours. So a stack of size a can capture a-1 tiles in a row before it
+runs out - one unit gets left behind on each.
+
+  [FIGURE - "A stack walks"                                    TO GENERATE
+   A single row of five tiles. A stack of 5 starts at the left and walks right
+   across four neutral tiles, one panel per tick. Each tile it leaves keeps
+   exactly 1 unit and turns red; the moving stack shrinks 5 -> 4 -> 3 -> 2 -> 1.
+   Caption: a stack of size a captures a-1 tiles. This is the mental model for
+   the entire expansion phase.]
+
+
+WHERE ARMY COMES FROM
+
+This is the part that quietly drives every decision in the game.
+
+  - your general produces one unit every two ticks
+  - each castle you own produces one unit every two ticks
+  - EVERY tile you own produces one unit every fifty ticks
+
+Neutral castles sit around the map holding forty to fifty units. Beat that
+garrison and the castle is yours, producing for you for the rest of the game.
+
+Those numbers are worth converting now, because they come back repeatedly. A
+producer makes half a unit per tick. A plain tile makes one fiftieth of a unit
+per tick. So one castle is worth exactly twenty-five plain tiles in production
+terms - which is a fact about the rules, not an opinion about strategy.
+
+  [FIGURE - "One castle = twenty-five tiles"                   EXISTS, needs trimming
+   media/fig8, top half only: castle at 0.50 army/tick, plain tile at 0.02
+   army/tick, and the equivalence underneath. Drop the 45-army spending
+   comparison for now - that belongs later with Idea 4.]
+
+
+The consequence is that this is a compounding game. Territory produces army,
+army takes territory, and small early advantages snowball. A player who is ten
+tiles ahead at turn fifty is usually much further ahead by turn two hundred.
+
+  [FIGURE - "Compounding"                                      TO GENERATE (real data)
+   Two stacked line charts from an actual self-play game in our simulator: land
+   over time, and army over time, red against blue. Pick a game where one side
+   pulls ahead around tick 60 and the gap widens from there; mark the moment the
+   lead opens. The message is entirely visual - the curves diverge and never
+   come back together.]
+
+
+HOW YOU WIN
+
+Move an army onto the enemy general and win the fight there. That is it. There
+is no points system and no other victory condition.
+
+  [FIGURE - "How you win"                                      TO GENERATE
+   Small board, a red stack three tiles from the blue general, the path arrowed,
+   and the capture. Keep it tiny - one idea, sitting beside two lines of text.]
+
+
+
+
+BOTH PLAYERS SEE EVERYTHING
+
+The board is fully observable. There is nothing hidden on it - both players see
+every tile, every army count, and both generals, from the first tick.
+
+That matters more than it sounds, because it is what makes the algorithms in
+this course apply at all. Classical adversarial search assumes you can evaluate
+the position in front of you. Here you can: what you see is what is there,
+evaluation is exact rather than expected, and a question like "can my opponent
+capture my general within six ticks?" has a definite yes-or-no answer rather
+than a probability.
+
+  [FIGURE - "Everything is visible"                            TO GENERATE
+   The position rendered once, with a short list beside it of what is therefore
+   known exactly: enemy general location, every army count, every castle
+   garrison, the whole terrain. No second panel, no comparison - just the board
+   and what it tells you.
+   use the difference figure in /media here as well]
+
+
+WHAT MAKES IT HARD
+
+Three things, and they are what the rest of these notes are about.
+
+The first is time. The game is a real time strategy game. Both players move together
+and thus time is of key importance.
+
+The second is the branching factor. Every tile you own with at least two units
+can move in four directions, in either of two move types, so average branching factor 
+turns out to be between 40 and 400!. Thus, depth is incredibly expensive for this problem.
+
+  [FIGURE - "Branching factor"                                 EXISTS: media/fig2
+   Chess (b = 35) against this game (b = 204, measured from a real position),
+   each with its fan of legal moves drawn out, plus the table of how alpha-beta
+   scales with depth. The solid black wedge of 204 branches beside the thin
+   chess fan is the most persuasive picture in the deck - give it a full slide.]
+
+
+The third is easy to miss: the reward is sparse and terminal. You win or you
+lose, five hundred ticks later. Nothing tells you at tick one hundred and
+thirty-seven whether that particular move was good.
+
+  [FIGURE - "Sparse reward"                                    TO GENERATE
+   A horizontal timeline of 500 ticks. Almost the whole bar is flat grey,
+   labelled "no signal", with a few decision points marked by question marks. At
+   the far right, a single spike: "+1 win / -1 loss". One glance should explain
+   why evaluation is the hard part.]
+
+
+And there is one genuine piece of hidden information, which is what stops the
+game collapsing into a solved search problem: both players commit their move for
+the same tick without seeing the other's. This sounds simple but has very impresive implications, 
+largest of which is plain minimax is still not quite right. It quietly assumes you move second and get to see what your
+opponent did - and dealing with it properly is one of the open questions in this
+project.
+
+  [FIGURE - "Simultaneous moves"                               TO GENERATE
+   Two panels. (a) SEQUENTIAL, what minimax assumes: I move, then they see it
+   and respond - mark this one as false. (b) SIMULTANEOUS, what actually
+   happens: both moves committed face-down, revealed together. Under (b), a
+   small 2x2 payoff matrix, to make the point that a node here is a matrix game
+   rather than a max or a min.]
+
+
+
+================================================================================
+2. WHY SEARCH, AND WHY IT IS NOT A FALLBACK
+================================================================================
+
+The "constraint" on this project is that I can only use search and constraint
+satisfaction — chapters three to six of Russell and Norvig. No reinforcement
+learning, no neural networks, no machine learning of any kind.
+
+To provide some context - The strongest non-learning agent on the public Generals.io (the game with fog) ladder is built entirely
+out of classical optimisation — graph algorithms and dynamic programming — and
+it was the best bot in the world at this game until a reinforcement learning
+agent trained on four H200 GPUs beat it. Search is a serious approach here, not
+a consolation prize. 
+
+We note that the sub-problems in this game are genuinely NP-hard. Gathering scattered army optimally to one
+point within a turn budget is a "rooted prize-collecting Steiner tree". Deciding
+what to spend a limited number of turns on is a multiple-choice knapsack
+problem. 
+
+Shortly speaking, there is no closed form solution here. And so, when a problem has no
+analytic solution and a combinatorial search space, search is what you use.
+
+  [FIGURE - "The sub-problems are NP-hard"                     TO GENERATE
+   A board with my army scattered across a dozen tiles in different amounts, my
+   general marked as the root, and collection routes drawn over it - some
+   branches taken, some skipped with their army greyed out. Label it as a rooted
+   prize-collecting Steiner tree: prize = army on a tile, cost = ticks to reach
+   it, skipping allowed. One line underneath: this is NP-hard, which is why
+   there is no formula for the right move. mention the name "rooted prize-collecting steiner tree "]
+
+
+
+================================================================================
+3. THE PAPERS
+================================================================================
+
+I picked five papers, one per topic in the course. 
+
+3.1  ARA*: ANYTIME A* WITH PROVABLE BOUNDS ON SUB-OPTIMALITY
+     Likhachev, Gordon and Thrun. NIPS 2003.
+
+Ordinary A* has a property that is fatal for me: it gives you nothing until it
+finishes. If my half second runs out mid-search I have no answer at all, and
+the tick fires regardless.
+
+Weighted A* is the classical fix. You inflate the heuristic — f equals g plus
+epsilon times h, with epsilon greater than one — which makes the search greedier
+and much faster. The important part is that this comes with a theorem, not a
+hope: the path you find costs at most epsilon times the optimal cost. So you
+have a dial between speed and quality, and a guarantee at every setting.
+
+  [ here you also show the theorem nicely in bold ]
+  [FIGURE - "Weighted A* trades quality for speed"             TO GENERATE
+   Three small grid panels side by side, same start and goal, same obstacles.
+   Shade the cells each search expanded. eps=1: a wide symmetric blob, optimal
+   path, many expansions. eps=2: a narrower cone aimed at the goal, slightly
+   longer path. eps=3: a thin corridor, clearly suboptimal path, very few
+   expansions. Label each with expansions and path cost. The visual point is
+   that inflating h makes the search greedy and directional.]
+
+
+So we run ARA  repeatedly with epsilon decreasing — three, then two, then one and a half — and
+to make each run reuse the previous run's work rather than starting over. You
+get a rough answer almost immediately, it improves the longer you let it run,
+and at every moment you know exactly how far from optimal you are.
+
+  [FIGURE - "Anytime: quality against time"                    TO GENERATE
+   A step chart. x = time in milliseconds up to our 500 ms budget. y = solution
+   cost, with the optimum as a dashed floor line. A descending staircase, one
+   step per eps value (3, 2, 1.5, 1.2, 1), each step annotated with its
+   guaranteed bound. A vertical line at 400 ms marked DEADLINE showing which
+   step we would actually have been holding. Underneath: plain A* would still be
+   returning nothing at that line.]
+
+
+The paper also describes a way to use first iterations' finding for the next one (reduced alpha) as shown here.
+
+  [FIGURE - "The three lists"                                  TO GENERATE
+   OPEN, CLOSED and INCONS drawn as three boxes with the states flowing between
+   them: expanded states move OPEN -> CLOSED; a state whose g improves after it
+   was closed goes to INCONS instead of back to OPEN; and at the end of a pass
+   the whole of INCONS is poured back into OPEN for the next eps. That last
+   arrow is the reuse, and it is the one to highlight.]
+
+
+3.2  REAL-TIME ADAPTIVE A* (RTAA*)
+     Koenig and Likhachev. AAMAS 2006.
+
+An agent that has to act now, cannot search all the way to the goal, and will be back in
+a similar situation next step. The algorithm the book teaches is LRTA*, which
+keeps a table of heuristic estimates and raises the estimate for the state it is
+standing in whenever its neighbours turn out to be further from the goal than
+expected. Over repeated visits the table becomes more accurate and the agent
+stops making the same mistake twice.
+
+The weakness of LRTA* is that it updates essentially one state per move, so on
+a large map the agent has to physically walk around correcting one number at a
+time. RTAA* replaces that with a bounded-depth A* search followed by an update
+of *every* state that search expanded, with one subtraction each.
+
+  [FIGURE - "LRTA* against RTAA*"                              TO GENERATE
+   Same grid twice. LEFT (LRTA*): a bounded search region, with exactly one cell
+   highlighted as updated. RIGHT (RTAA*): the same region with EVERY expanded
+   cell highlighted. Same lookahead, same cost of search, vastly more heuristic
+   information gained per move. This single comparison is the whole paper.]
+
+
+Here is the justification - A* expands states
+in order of increasing f, so when it stops, the smallest f remaining on the
+frontier is a lower bound on the true distance from where you are standing to
+the goal. Any path out of the searched region has to pass through that frontier.
+So for any expanded state, the true distance to the goal is at least the
+frontier's f value minus that state's g value — and that is exactly what gets
+assigned as the new heuristic. It is a lower bound, so the heuristic stays
+admissible and everything A* guarantees still holds. The paper also proves the
+update is monotonically non-decreasing, which means the table only ever becomes
+more informed and never degrades.
+
+  [FIGURE - "Why the update is legal"                          TO GENERATE
+   One grid. Mark the current state, shade the expanded region, draw the
+   frontier as a dashed arc, and put s-bar (the frontier state with smallest f)
+   as a filled dot. Then draw an arbitrary path from some expanded state s out
+   to the goal, showing it MUST cross the arc. Beside it, the inequality
+   dist(s, goal) >= f(s-bar) - g(s), which is exactly the assignment.
+   The geometric argument lands better than the algebra.]
+
+The paper is honest about the trade-off. LRTA*'s heuristic ends up better
+informed for the same lookahead. RTAA* is simply so much cheaper per move that
+it reaches the goal sooner in wall-clock terms. That is precisely my situation:
+I am limited by time, not by number of moves.
+
+There is one detail I want to flag because it becomes important later. The
+pseudocode contains two lines that say, literally, "any integer greater than
+zero" — how much to look ahead, and how many steps to commit to. The paper does
+not tell you how to choose them. That gap is where a later paper lives.
+
+  [FIGURE - "The two undefined parameters"                     TO GENERATE
+   The RTAA* pseudocode block set in mono, with exactly two lines highlighted in
+   amber - lookahead and movements - each annotated "any integer greater than
+   zero: undefined by the paper". An arrow from each pointing forward to Idea 1
+   and Idea 3. This is the hinge between the published work and my own
+   contribution, so it probably deserves its own slide.]
+
+3.3  DEPRESSION AVOIDANCE IN REAL-TIME HEURISTIC SEARCH
+     Hernández and Baier. AAAI 2012.
+
+This paper is about a specific way real-time search fails, and a very cheap fix.
+There is almost no mathematics in it, which I take as a good sign — it is an
+observation rather than a construction.
+
+We define a heuristic depression as a connected region where the heuristic badly
+underestimates the true cost compared to the values on the region's border. If
+you picture the heuristic as a landscape where low means close to the goal, a
+depression is a bowl. A greedy agent rolls in, because from outside everything
+in the bowl looks close to the goal, and then it cannot get out: each move
+raises one state's value slightly, so it wanders the bowl raising values one at
+a time until the whole thing has been filled in. The literature calls this
+scrubbing, and it can waste hundreds of moves.
+
+  [FIGURE - "A heuristic depression"                           TO GENERATE
+   Left: the heuristic as a 1-D landscape with a bowl between the agent and the
+   goal, and the agent's path scribbling back and forth inside it - the
+   scrubbing. Right: the same thing on the real board - a corridor of neutral
+   tiles dead-ending into mountains, with the wasted path traced through it.
+   The abstract picture and the concrete one, side by side.]
+
+The fix is one sentence: prefer to move to states that are not known to be
+inside a depression. And the detection is free.
+
+Because the heuristic starts out admissible and updates only ever raise it, the
+fact that you ever had to raise a state's value means the original estimate at
+that state was too optimistic — which is the definition of being in a
+depression. 
+
+So detection costs one extra bit per state: remember the original
+value, and mark the state if the current value has grown past it.
+
+  [FIGURE - "Detection is free"                                TO GENERATE
+   A grid where each cell shows h and, in smaller type, its original h0. Cells
+   where h has been raised are hatched or marked with a dot. Caption: because
+   updates only ever raise h, a raised value IS the detector - no separate test
+   is needed. Then a second small panel showing the agent's route bending around
+   the marked region.]
+
+
+There are two ways to use the mark. Mark-and-avoid simply prefers unmarked
+states when choosing where to head, falling back to marked ones only if
+everything is marked. Move-to-border is softer: if you are already deep in a
+depression and every neighbour is marked, aim for the states that look closest
+to the edge rather than refusing to be in the bowl at all.
+
+3.4  PROBCUT: FORWARD PRUNING IN ALPHA-BETA
+     Buro.
+
+Alpha-beta pruning skips subtrees that provably cannot affect the final choice.
+That soundness is the whole point of it, and it is also what it costs: it only
+prunes when it can *prove* irrelevance, and proof requires searching. The
+result is that depth stays low, and depth is what actually makes a program
+strong.
+
+ProbCut's idea is to prune what is probably irrelevant. Before searching a
+subtree to full depth, run a much shallower search on it. If the shallow result
+comes back far enough outside the current alpha-beta window, conclude that the
+deep search would almost certainly land outside too, and skip it.
+
+The statistical part is simple. The value a deep search returns and the value a
+shallow search returns are strongly correlated — a position that looks winning
+after two ply usually looks winning after six. The paper models that
+relationship as a straight line with Gaussian noise, and fits the slope,
+intercept and standard deviation by ordinary least squares over a few thousand
+positions, offline. That is regression, not machine learning in the sense the
+course excludes.
+
+  [FIGURE - "Shallow predicts deep"                            TO GENERATE (real data)
+   A scatter plot from our own simulator: x = value from a 1-ply search, y =
+   value from a 3-ply search, a few thousand self-play positions. Fitted line
+   through it, and a shaded band at +/- sigma. This is the experiment from week
+   two, so the figure doubles as a result. If the cloud is tight, ProbCut works
+   here; if it is round, it does not - and either way the picture says so.]
+
+3.5  METAREASONING: DECIDING HOW MUCH TO THINK
+     O'Ceallaigh and Ruml. SoCS 2015.
+     Russell and Wefald. UAI 1990 - the same Russell as the textbook.
+
+The four papers above all answer the question "how do I search well?". This one
+asks a different question: "should I be searching at all right now, and if so,
+how much?"
+
+Russell and Wefald set up the framework in 1990. Treat each possible node
+expansion as an action in its own right, with a cost - the time it takes - and a
+benefit, which is the probability that performing it actually CHANGES WHICH MOVE
+YOU FINALLY PLAY, multiplied by how much better that move turns out to be. Then
+expand the node with the highest value of computation, and stop searching when
+the expected benefit of another expansion drops below its cost.
+
+The sentence that matters is this one:
+
+    A computation that cannot change your answer has zero value,
+    no matter how deep it is.
+
+That sounds obvious written down, and almost no game-playing program acts on it.
+The standard design searches to a fixed depth, or until a fixed time limit,
+regardless of whether the decision was ever in doubt.
+
+  [FIGURE - "Value of computation"                             TO GENERATE
+   Two small game trees side by side. LEFT: the root's children have wildly
+   different values, so expanding any of them further cannot change which one is
+   best - mark the whole subtree as "zero value, do not search". RIGHT: the
+   children are nearly tied, so one more expansion could flip the answer - mark
+   it "worth searching". The contrast is the entire idea, and it needs no
+   equations to land.]
+
+The 2015 paper takes this framework into real-time search and identifies two
+specific decision points. What makes it fit this project so neatly is that they
+are exactly the two lines RTAA* left undefined in section 3.2.
+
+The first is the IDENTITY ACTION. An identity action keeps you in the same state
+while you think longer. Should the agent act now, or stand still and deliberate?
+Standard real-time search never asks - it assumes acting is always right. But if
+your current best move is only marginally better than the second best, another
+round of lookahead might turn up something much better, and standing still costs
+only time.
+
+They measure everything in goal achievement time, which is planning time plus
+execution time. Under that metric thinking is not free, but it is frequently
+cheaper than committing to a bad move and then having to undo it.
+
+The second is PREFIX COMMITMENT. After lookahead you hold a path to the best
+state you found. How much of that path do you actually execute before replanning?
+The existing algorithms sit at the two extremes and neither adapts: LRTA* commits
+to exactly one action, while later variants commit to the entire path to the
+frontier. One action means replanning constantly, which is expensive; the whole
+path means acting on stale information, which is dangerous. The paper chooses
+dynamically - commit further when the plan looks robust, less when it looks
+fragile.
+
+  [FIGURE - "The two decisions"                                TO GENERATE
+   Reuse the RTAA* pseudocode block from 3.2 with the same two amber lines, but
+   now with each one answered. Beside "lookahead = any integer > 0" put
+   DECISION 1: act now, or stand still and think? Beside "movements = any
+   integer > 0" put DECISION 2: how far do I commit before replanning? Then a
+   second panel showing prefix commitment concretely - a long safe path through
+   my own territory queued whole, against a short path into contested territory
+   committed one step at a time.]
+
+Two things make this unusually applicable here, and they are both accidents of
+the domain rather than anything clever on my part.
+
+This game has a real identity action. Index zero on every tile is "pass" - the
+agent can literally stand still and think, and the rules permit it. Most domains
+in this literature have to simulate an identity action or argue by analogy.
+
+And the game has a move queue: you can queue a path of moves in advance and the
+server plays one per tick. That is prefix commitment implemented for us, in the
+rules, with no work on my part.
+
+So both of the paper's decision points have a direct, literal counterpart in the
+game. That is why this direction is where I think my own contribution sits, and
+sections 5 and 6 are largely about testing it.
+
+  [FIGURE - "Both mechanics come free"                         TO GENERATE
+   Two panels. LEFT: the action space for one tile, nine actions, with index 0
+   labelled PASS and highlighted - "the identity action, in the rules". RIGHT:
+   the move queue UI concept, a path of queued moves with the server consuming
+   one per tick - "prefix commitment, in the rules". Caption: the metareasoning
+   literature usually has to simulate both of these.]
+
+
+
+
+================================================================================
+5. THE IDEAS I WANT TO TEST
+================================================================================
+
+These are hypotheses rather than claims.
+
+The first idea is that the value of computation is measurable in this domain
+rather than merely estimable. Russell and Wefald's metareasoning framework asks
+you to weigh the cost of a computation against the probability that it changes
+which action you finally take, and the hard part has always been estimating that
+probability before doing the computation. Here I do not have to estimate it. The
+batched evaluator gives me the full one-ply score distribution in under a
+millisecond, and the gap between the best and second-best move is a direct,
+computed proxy for whether more thinking could change the answer. The cost side
+is quantifiable too: passing costs exactly one tick of tempo, and the production
+rate is fixed by the rules, so I can price a tick of thinking in army units.
+Both sides of the inequality are computable, which is unusual.
+
+The second idea is speculative pre-computation, and it is the one I am most
+interested in. Production in this game is completely deterministic — after the
+map is generated there is no randomness at all. So if nobody moved, the board
+ten ticks from now is exactly computable from the board today. The only
+uncertainty about the near future is the handful of moves each side makes, and
+each move perturbs a tiny region of a five-hundred-tile board. That means I can
+start searching next tick's problem during this tick, because I already know
+almost all of it, and patch in the few changed tiles when the real moves arrive.
+Done properly this roughly doubles my effective compute budget without making
+anything faster. And it depends entirely on the game being deterministic and
+fully observable: I can only extrapolate a board I can actually see.
+
+  [FIGURE - "Idea 2: searching ahead of the clock"             EXISTS: media/fig5
+   The two timelines: without pre-roll, think-then-idle; with pre-roll, the idle
+   half of each tick spent searching the next one. Consider adding a second
+   panel showing how few tiles actually change between consecutive boards -
+   that is the fact the whole idea rests on, and it is measurable.]
+
+The third idea is a reframing of the game's move queue. Normally the queue is
+treated as a user-interface convenience. I want to treat it as a compute budget:
+every move I queue is a tick of thinking time I have bought, because during a
+queued move I owe the game no decision. Queue a twelve-step march home through
+my own territory and I have bought six seconds of uninterrupted computation. The
+commit decision then stops being about confidence and becomes a trade — how much
+thinking time do I want, against how long am I willing to act on stale
+information. This is the prefix-commitment decision from the metareasoning
+literature, but with an interpretation those papers do not have, because their
+domains do not have a queue.
+
+  [FIGURE - "Idea 3: the queue is a compute budget"            EXISTS: media/fig6
+   Twelve queued moves buying six seconds of thinking, and the robust-versus-
+   fragile split underneath.]
+
+
+We plan to use media/fig3-tree-regions.svg as the key backbone architecture of the project.
+

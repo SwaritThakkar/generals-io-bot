@@ -1,0 +1,114 @@
+/* Tokens are read by shared/board.mjs too, so the canvas and the chrome always
+   agree on colour. Light is defined on bare :root; dark is redefined twice so
+   both the OS setting and an explicit data-theme stamp win. */
+:root {
+  --ground: #e9ecec; --surface: #f7f9f8; --surface-2: #dfe4e4; --sunken: #d3dad9;
+  --line: #c5cecd; --line-soft: #d9e0df;
+  --ink: #131a1c; --ink-2: #4a585c; --ink-3: #7b8a8e;
+  --brass: #9a6b12; --brass-ink: #7d5709; --brass-soft: rgba(154, 107, 18, .14);
+  --p0: #bf3b34; --p1: #2c5f96; --p2: #4c8b52; --p3: #7a5aa8;
+  --neutral-land: #b6c0bf; --neutral-castle: #8e9c9c; --mountain: #77868a;
+  --grid: rgba(19, 26, 28, .16); --tile-ink: #ffffff; --plain-ink: #2a3538;
+  --good: #2f7d4f; --bad: #b23c33;
+  --shadow: 0 1px 2px rgba(19, 26, 28, .08), 0 8px 24px rgba(19, 26, 28, .07);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0b1012; --surface: #121a1d; --surface-2: #1a2429; --sunken: #0e1518;
+    --line: #243036; --line-soft: #1b262b;
+    --ink: #e2e9ea; --ink-2: #9db0b4; --ink-3: #6b7d82;
+    --brass: #d7a244; --brass-ink: #e8b95f; --brass-soft: rgba(215, 162, 68, .16);
+    --p0: #d1544a; --p1: #4a86c6; --p2: #63a96a; --p3: #9a7ac8;
+    --neutral-land: #2b3a3f; --neutral-castle: #485b61; --mountain: #162024;
+    --grid: rgba(226, 233, 234, .10); --tile-ink: #ffffff; --plain-ink: #b9c8cb;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0b1012; --surface: #121a1d; --surface-2: #1a2429; --sunken: #0e1518;
+  --line: #243036; --line-soft: #1b262b;
+  --ink: #e2e9ea; --ink-2: #9db0b4; --ink-3: #6b7d82;
+  --brass: #d7a244; --brass-ink: #e8b95f; --brass-soft: rgba(215, 162, 68, .16);
+  --p0: #d1544a; --p1: #4a86c6; --p2: #63a96a; --p3: #9a7ac8;
+  --neutral-land: #2b3a3f; --neutral-castle: #485b61; --mountain: #162024;
+  --grid: rgba(226, 233, 234, .10); --tile-ink: #ffffff; --plain-ink: #b9c8cb;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+}
+
+* { box-sizing: border-box; }
+html, body { padding: 0; margin: 0; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+a { color: var(--brass-ink); }
+
+.wrap { max-width: 1140px; margin: 0 auto; padding: 26px 20px 48px;
+  display: flex; flex-direction: column; gap: 20px; }
+.eyebrow { font-family: "Barlow Condensed", ui-sans-serif, sans-serif; font-weight: 600;
+  font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass-ink); }
+h1 { font-family: "Barlow Condensed", ui-sans-serif, sans-serif; font-weight: 700;
+  font-size: 36px; margin: 0; line-height: 1.03; letter-spacing: .005em; text-wrap: balance; }
+h2 { font-family: "Barlow Condensed", ui-sans-serif, sans-serif; font-size: 13px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; font-weight: 600; }
+p { margin: 0; }
+.muted { color: var(--ink-2); }
+.tiny { font-size: 12px; color: var(--ink-3); }
+
+.masthead { border-bottom: 1px solid var(--line); padding-bottom: 14px;
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+
+.panel { background: var(--surface); border: 1px solid var(--line);
+  border-radius: 4px; box-shadow: var(--shadow); padding: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+
+label { display: flex; flex-direction: column; gap: 4px; font-family: "Barlow Condensed", sans-serif;
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+input, select, button, textarea {
+  font-family: "IBM Plex Sans", sans-serif; font-size: 14px; color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 3px;
+  height: 34px; padding: 0 9px;
+}
+input:focus-visible, select:focus-visible, button:focus-visible {
+  outline: 2px solid var(--brass); outline-offset: 2px;
+}
+button { cursor: pointer; font-weight: 500; transition: border-color .12s ease, color .12s ease; }
+button:hover:not(:disabled) { border-color: var(--brass); color: var(--brass-ink); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button.primary { background: var(--brass-soft); border-color: var(--brass);
+  color: var(--brass-ink); font-weight: 600; }
+.row { display: flex; gap: 9px; align-items: flex-end; flex-wrap: wrap; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+
+.err { border-left: 3px solid var(--bad); padding: 9px 12px; background: var(--surface-2);
+  border-radius: 3px; font-size: 13px; }
+.warn { border-left: 3px solid var(--brass); padding: 9px 12px; background: var(--brass-soft);
+  border-radius: 3px; font-size: 13px; }
+
+/* ---- game ---- */
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+@media (max-width: 880px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.board-hold { background: var(--sunken); border: 1px solid var(--line-soft); border-radius: 3px;
+  padding: 8px; display: flex; justify-content: center; overflow: auto; }
+canvas { display: block; touch-action: manipulation; }
+.clock { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: 13px; color: var(--ink-2); }
+.clock b { color: var(--ink); }
+.srow { display: grid; grid-template-columns: 11px 1fr auto auto; align-items: center; gap: 9px; }
+.swatch { width: 11px; height: 11px; border-radius: 2px; }
+.sname { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .03em; }
+.sname.dead { color: var(--ink-3); text-decoration: line-through; }
+.snum { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: 13px; min-width: 46px; text-align: right; }
+.snum small { display: block; font-family: "Barlow Condensed", sans-serif; font-size: 9px;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3); }
+.verdict { border-left: 3px solid var(--brass); }
+.verdict .who { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 700; }
+kbd { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 2px; padding: 1px 4px; color: var(--ink-2); }
+.share { display: flex; gap: 8px; }
+.share input { flex: 1; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

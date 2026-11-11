@@ -1,0 +1,6 @@
+{"seed": 92020, "max_steps": 220, "candidate_seat": 0, "winner": 0, "won": true, "ticks": 220, "seconds": 8.15, "errors": []}
+{"seed": 92020, "max_steps": 220, "candidate_seat": 1, "winner": 0, "won": false, "ticks": 220, "seconds": 9.61, "errors": []}
+{"seed": 92021, "max_steps": 300, "candidate_seat": 0, "winner": 0, "won": true, "ticks": 300, "seconds": 15.82, "errors": []}
+{"seed": 92021, "max_steps": 300, "candidate_seat": 1, "winner": 0, "won": false, "ticks": 300, "seconds": 9.9, "errors": []}
+{"seed": 92022, "max_steps": 300, "candidate_seat": 0, "winner": 0, "won": true, "ticks": 300, "seconds": 10.88, "errors": []}
+{"seed": 92022, "max_steps": 300, "candidate_seat": 1, "winner": 1, "won": true, "ticks": 300, "seconds": 7.77, "errors": []}
