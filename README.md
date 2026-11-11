@@ -230,12 +230,13 @@ Board 23×23, one tick every 350–500 ms, humans played both seats.
 
 | | Games | v51 won | Humans won |
 |---|---|---|---|
-| Completed games | 14 | **11** (10 by capturing the general, 1 on land at the tick limit) | 3 (all by capture) |
+| Completed games | 17 | **14** (11 by capturing the general, 3 on land at the tick limit) | 3 (all by capture) |
 | Player A | 10 | 7 | 3 |
 | Player B | 2 | 2 | 0 |
 | Player C | 2 | 2 | 0 |
+| Player D | 3 | 3 | 0 |
 
-- **v51 won 11 of 14 completed games (79%)** against three human players; it captured the human
+- **v51 won 14 of 17 completed games (82%)** against four human players; it captured the human
   general between ticks 268 and 655.
 - All three human wins came from one player (Player A, 3 of their 10 games), at ticks 382–638.
 - Two further games ended when the human quit (at ticks 8 and 355); they are not counted above.
